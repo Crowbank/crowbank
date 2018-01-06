@@ -1,0 +1,76 @@
+Crowbank Kennels and Cattery
+
+Crowbank Pet Boarding
+Crowbank House, Arns
+Cumbernauld G67 3JW
+United Kingdom
+
+${conf.booking.customer.display_name()}
+% if conf.booking.customer.addr1 != '':
+${conf.booking.customer.addr1}
+% endif
+% if conf.booking.customer.addr2 != '':
+${conf.booking.customer.addr2}
+% endif
+% if conf.booking.customer.addr3 != '':
+${conf.booking.customer.addr3}
+% endif
+% if conf.booking.customer.postcode != '':
+${conf.booking.customer.postcode}
+% endif
+United Kingdom
+
+Tel: 01236 729454
+www.crowbank.co.uk
+info@crowbank.co.uk
+
+${conf.clean_additional_text}
+
+${conf.title}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+We have received your inquiry regarding booking ${conf.pet_names} between ${conf.booking.start_date.strftime("%a %d %b %Y %H:%M")} and ${conf.booking.end_date.strftime("%a %d %b %Y %H:%M")}.
+
+At the moment, we have availability for those dates at a total cost of £${"{0:.2f}".format(conf.booking.gross_amt)}.
+
+If you would like us to make the booking, please pay a deposit of £${"{0:.2f}".format(conf.deposit_amount)} by pasting the following to your browser: ${deposit_url}.
+
+Alternatively, call us at 01236 729454 to pay over the phone.
+
+Note we cannot guarantee availability until we receive your deposit. Once we receive your deposit, we will send you an email confirmation.
+
+
+By paying your deposit you agree in full to our boarding Terms and Conditions (available on our website) including those regarding vaccinations.
+
+All pets must have a full set of up-to-date vaccinations. All dogs must also have a current annual Kennel Cough vaccination.
+Kennel Cough vaccine must be administered <strong>at least 7 days prior to boarding. Ask your vet to be sure!
+
+We only accept and discharge guests during our opening hours:
+
+Mon-Sat 10:00-12:30 and 14:00-17:30
+Sun 10:00-13:00
+
+
+
+
+
+*Deposits are refundable up to 7 days after payment. Please contact us via email to info@crowbank.co.uk to cancel your booking
+and your deposit will be refunded in full. After 7 days, deposits are non-refundable.
+
+
+
+All bookings are subject to Crowbank Pet Boarding's Terms and Conditions
+
+This email has been automatically generated. If you have received this email in error, or if the details are incorrect, please reply and we will address any concerns you may have. Thank you!

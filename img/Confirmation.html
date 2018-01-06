@@ -1,0 +1,321 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<%!
+    import decimal
+%>
+<html><head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>${conf.title}</title>
+
+<style type="text/css">
+body {
+font-family: Calibri;
+}
+</style>
+</head><body style="width: 800px;">
+<table style="text-align: left; font-family: Calibri; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+% if conf.booking.status == 'P':
+<tr>
+<td style="width: 195px;"><br>
+<span style="font-weight: bold;">Crowbank Pet Boarding</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">Crowbank House, Arns</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">Cumbernauld G67 3JW</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">United Kingdom</span><br>
+</td>
+</tr>
+<tr>
+<td style="width: 585px;"><br>${conf.booking.customer.display_name()}<br>
+			% if conf.booking.customer.addr1 != '':
+			<nobr>${conf.booking.customer.addr1}</nobr><br/>
+			% endif
+			% if conf.booking.customer.addr2 != '':
+			<nobr>${conf.booking.customer.addr2}</nobr><br/>
+			% endif
+			% if conf.booking.customer.addr3 != '':
+			<nobr>${conf.booking.customer.addr3}</nobr><br/>
+			% endif
+			% if conf.booking.customer.postcode != '':
+			<nobr>${conf.booking.customer.postcode}</nobr><br/>
+			% endif
+			<nobr>United Kingdom</nobr>
+</td>
+<td style="font-weight: bold; width: 195px;">Tel: 01236 729454<br>
+<a href="http://www.crowbank.co.uk" target="_blank">www.crowbank.co.uk</a><br>
+<a href="mailto:info@crowbank.co.uk">info@crowbank.co.uk</a><br>
+Look for us on <a href="https://www.facebook.com/Crowbank-Kennels-and-Cattery-516470711817917/" target="_blank">Facebook</a></td>
+</tr>
+</tbody>
+</table>
+<br style="font-family: Calibri;">
+<br>
+${conf.additional_text}<br><br>
+We have received your inquiry regarding booking ${conf.pet_names} between ${conf.booking.start_date.strftime("%a %d %b %Y %H:%M")} and ${conf.booking.end_date.strftime("%a %d %b %Y %H:%M")}.<br>
+At the moment, we have availability for those dates at a total cost of ${"{0:.2f}".format(conf.booking.gross_amt)}.<br>
+If you would like us to make the booking, please pay a deposit of ${"{0:.2f}".format(conf.deposit_amount)} (plus a 1.20 transaction fee) by
+following <a style="font-style: italic;" href="${deposit_url}" target="_blank">this link</a>.<br>
+Alternatively, call us at 01236 729454 to pay over the phone.<br>
+<strong>Note we cannot guarantee availability until we receive your deposit.</strong>
+Once we receive your deposit, we will send you an email confirmation.<br>
+
+<div style="font-size:0;height:100px;"></div>
+
+<span style="font-style: italic;">By paying your deposit you agree <span style="font-weight: bold;">in full</span>
+to our boarding </span><a style="font-style: italic;" href="http://www.crowbank.co.uk/terms-and-conditions/" target="_blank">Terms
+and Conditions</a><span style="font-style: italic;">,
+including those regarding <a href="http://www.crowbank.co.uk/vaccinations/" target="_blank">vaccinations</a>.
+</span>
+<span style="color: rgb(204, 0, 0); font-style: italic;">All
+pets must have a full set of up-to-date vaccinations. All dogs must also have a current annual <strong>Kennel Cough vaccination</strong>.
+Kennel Cough vaccine must be administered <strong>at least 7 days</strong> prior to
+boarding. Ask your vet to be sure!</span><br>
+<br>
+We <span style="font-weight: bold;">only</span>
+accept and discharge guests during our <span style="font-weight: bold;">opening hours:</span><br style="font-weight: bold;">
+<br>
+<table style="text-align: left; width: 340px; height: 88px;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td></td>
+<td style="width: 122px;"><span style="font-weight: bold;">Mon-Sat</span></td>
+<td style="width: 161px;">10:00-12:30</td>
+</tr>
+<tr>
+<td></td>
+<td style="width: 122px;"></td>
+<td style="width: 161px;">14:00-17:30</td>
+</tr>
+<tr>
+<td></td>
+<td style="width: 122px;"></td>
+<td style="width: 161px;"></td>
+</tr>
+<tr>
+<td style="height: 25px;"></td>
+<td style="width: 122px; height: 25px;"><span style="font-weight: bold;">Sun</span></td>
+<td style="width: 161px; height: 25px;">10:00-13:00</td>
+</tr>
+</tbody>
+</table>
+<br>
+<div><small><span style="font-style: italic;">*Deposits are refundable up to 7 days after payment.
+	Please contact us via <a href="mailto:crowbank.partners@gmail.com">email</a> to cancel your booking
+	and your deposit will be refunded in full. After 7 days, deposits are <strong>non-refundable.</strong>
+</span></small><br>
+</div>
+<br>
+% else:
+<tr>
+<td style="width: 585px;">
+% if conf.deluxe:
+	<img style="width: 322px; height: 161px;" alt="Crowbank Kennels and Cattery" src="https://i.imgsafe.org/a1311f04ef.png"/>
+% else:
+	<img style="width: 322px; height: 161px;" alt="Crowbank Kennels and Cattery" src="https://i.imgsafe.org/a127315496.jpg"/>
+% endif
+</td>
+<td style="width: 195px;"><br>
+<span style="font-weight: bold;">Crowbank Pet Boarding</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">Crowbank House, Arns</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">Cumbernauld G67 3JW</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">United Kingdom</span><br>
+</td>
+</tr>
+<tr>
+<td style="width: 585px;"><br>${conf.booking.customer.display_name()}<br>
+			% if conf.booking.customer.addr1 != '':
+			<nobr>${conf.booking.customer.addr1}</nobr><br/>
+			% endif
+			% if conf.booking.customer.addr2 != '':
+			<nobr>${conf.booking.customer.addr2}</nobr><br/>
+			% endif
+			% if conf.booking.customer.addr3 != '':
+			<nobr>${conf.booking.customer.addr3}</nobr><br/>
+			% endif
+			% if conf.booking.customer.postcode != '':
+			<nobr>${conf.booking.customer.postcode}</nobr><br/>
+			% endif
+			<nobr>United Kingdom</nobr>
+</td>
+<td style="font-weight: bold; width: 195px;">Tel: 01236 729454<br>
+<a href="http://www.crowbank.co.uk" target="_blank">www.crowbank.co.uk</a><br>
+<a href="mailto:info@crowbank.co.uk">info@crowbank.co.uk</a><br>
+Look for us on <a href="https://www.facebook.com/Crowbank-Kennels-and-Cattery-516470711817917/" target="_blank">Facebook</a></td>
+</tr>
+</tbody>
+</table>
+<br style="font-family: Calibri;">
+<br>
+${conf.additional_text}<br>
+<br>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr align="center">
+% if conf.deluxe:
+<th style="border-top: 1pt solid rgb(93, 65, 172); border-bottom: 1pt solid rgb(93, 65, 172); background-color: rgb(170, 154, 215);width: 401px;" colspan="3" rowspan="1">
+% elif conf.cancelled:
+<th style="border-top: 1pt solid rgb(164, 166, 166); border-bottom: 1pt solid rgb(164, 166, 166); background-color: rgb(210, 160, 140);width: 401px;" colspan="3" rowspan="1">
+% else:
+<th style="border-top: 1pt solid rgb(164, 166, 166); border-bottom: 1pt solid rgb(164, 166, 166); background-color: rgb(214, 224, 226);width: 401px;" colspan="3" rowspan="1">
+% endif
+<big><big><span style="font-family: Calibri; font-weight: bold;">${conf.title}</span></big></big></th>
+</tr>
+<tr>
+<td style="width: 333px;"></td>
+<td style="width: 149px;"></td>
+<td style="width: 401px;"></td>
+</tr>
+<tr>
+<td style="font-family: Calibri; width: 333px;"><span style="font-weight: bold;">Booking No</span></td>
+<td style="font-family: Calibri; text-align: right; width: 200px;">${conf.booking.no}</td>
+<td style="font-family: Calibri; width: 401px;"></td>
+</tr>
+<tr>
+<td style="font-family: Calibri; width: 333px;"><span style="font-weight: bold;">Arriving</span></td>
+<td style="font-family: Calibri; text-align: right; width: 200px;">${conf.booking.start_date.strftime("%a %d %b %Y %H:%M")}</td>
+<td style="font-family: Calibri; width: 401px;"></td>
+</tr>
+<tr>
+<td style="font-family: Calibri; width: 333px;"><span style="font-weight: bold;">Leaving</span></td>
+<td style="font-family: Calibri; text-align: right; width: 200px;">${conf.booking.end_date.strftime("%a %d %b %Y %H:%M")}</td>
+<td style="font-family: Calibri; width: 401px;"></td>
+</tr>
+% if not conf.cancelled:
+<tr>
+<td style="font-family: Calibri; width: 333px;"><span style="font-weight: bold;">Total Amount</span></td>
+<td style="font-family: Calibri; text-align: right; width: 200px;">&pound;${"{0:.2f}".format(conf.booking.gross_amt)}</td>
+<td style="font-family: Calibri; width: 401px;"></td>
+</tr>
+% endif
+<tr>
+<td style="font-family: Calibri; width: 333px;"><span style="font-weight: bold;">Paid</span></td>
+<td style="font-family: Calibri; text-align: right; width: 200px;">&pound;${"{0:.2f}".format(conf.booking.paid_amt)}</td>
+<td style="font-family: Calibri; width: 401px;"></td>
+</tr>
+% if not conf.cancelled:
+<tr>
+<td style="font-family: Calibri; width: 333px;"><span style="font-weight: bold;">Outstanding</span></td>
+<td style="font-family: Calibri; text-align: right; width: 200px;">&pound;${"{0:.2f}".format(conf.booking.outstanding_amt())}</td>
+<td style="font-family: Calibri; width: 401px;"></td>
+</tr>
+% endif
+<tr><td></td><td></td><td></td></tr><tr>
+% if conf.deluxe:
+<td style="border-top: 1pt solid rgb(93, 65, 172); border-bottom: 1pt solid rgb(93, 65, 172); background-color: rgb(170, 154, 215); width: 149px; font-family: Calibri; text-align: center;" colspan="2" rowspan="1">
+% elif conf.cancelled:
+<td style="border-top: 1pt solid rgb(164, 166, 166); border-bottom: 1pt solid rgb(164, 166, 166); background-color: rgb(210, 160, 140); width: 149px; font-family: Calibri; text-align: center;" colspan="2" rowspan="1">
+% else:
+<td style="border-top: 1pt solid rgb(164, 166, 166); border-bottom: 1pt solid rgb(164, 166, 166); background-color: rgb(214, 224, 226); width: 149px; font-family: Calibri; text-align: center;" colspan="2" rowspan="1">
+% endif
+<big><big><span style="font-weight: bold;">Guests</span></big></big></td>
+	<td style="font-family: Calibri; width: 401px;"></td>
+</tr>
+<tr>
+% for pet in conf.booking.pets:
+	<td colspan="1" rowspan="1" style="text-align: left; font-family: Calibri; width: 333px;">${pet.name} (${pet.breed})</td>
+<td style="font-family: Calibri; text-align: right; width: 149px;">${pet.spec}</td>
+<td style="font-family: Calibri; width: 401px;"></td>
+</tr>
+% endfor
+</tbody>
+</table>
+<br style="font-family: Calibri;">
+<br>
+% if conf.cancelled:
+Your booking has been <span style="font-weight: bold;">cancelled.</span>
+% if conf.booking.paid_amt != decimal.Decimal("0.00"):
+As laid out in our Terms and Conditions, your deposit of &pound;${"{0:.2f}".format(conf.booking.paid_amt)} is non-refundable.
+% endif
+ We're sorry to see you go, but we hope you'll be back soon!<br><br>
+% else:
+% if conf.deposit:
+% if conf.amended:
+Your <span style="font-weight: bold;">provisional booking</span> has been amended! Please check the information above to ensure the information is correct.
+% else:
+This is a <span style="font-weight: bold;">provisional booking</span>.
+% endif
+Please check the information above to ensure the details are correct.
+To secure the booking, please pay a <span style="font-weight: bold;">non-refundable* deposit of &pound;${"{0:.2f}".format(conf.deposit_amount)}</span> (plus a &pound;1.20 transaction fee).<br>
+<span style="font-weight: bold; text-decoration: underline;">We may cancel or resell
+the booking if the deposit is not paid within 7 days.</span><br>
+<br>
+<div style="text-align: center;"><a href="${deposit_url}" target="_blank">
+	<img style="border: 0px solid ; width: 179px; height: 120px;" alt="Pay Deposit" src="data:image/jpeg;base64,${deposit_icon}"></a><br>
+	<style="text-align: center">No Image? <a href="${deposit_url}" target="_blank">Click Here to Pay Deposit</a></style><br>
+</div>
+<br>
+<span style="font-style: italic;">By paying your deposit
+you agree <span style="font-weight: bold;">in full</span>
+to our boarding </span><a style="font-style: italic;" href="http://www.crowbank.co.uk/terms-and-conditions/" target="_blank">Terms
+and Conditions</a><span style="font-style: italic;">,
+including those regarding <a href="http://www.crowbank.co.uk/vaccinations/" target="_blank">vaccinations</a>.
+</span>
+% else:
+% if conf.payment:
+Your payment of &pound;${"{0:.2f}".format(conf.payment_amount)} has been received, and your booking has been confirmed.
+% elif conf.amended:
+Your booking has been amended.
+% else:
+Your booking has been confirmed.
+% endif
+Please check the information above to ensure the details are correct.
+Thank you and we'll see you on ${conf.booking.start_date.strftime("%a %d %b")}!
+<p></p>
+<span style="font-style: italic;">By making this booking
+you agree <span style="font-weight: bold;">in full</span>
+to our boarding </span><a style="font-style: italic;" href="http://www.crowbank.co.uk/terms-and-conditions/" target="_blank">Terms
+and Conditions</a><span style="font-style: italic;">,
+including those regarding <a href="http://www.crowbank.co.uk/vaccinations/" target="_blank">vaccinations</a>.
+</span>
+% endif
+<span style="color: rgb(204, 0, 0); font-style: italic;">All
+pets must have a full set of up-to-date vaccinations. All dogs must also have a current annual <strong>Kennel Cough vaccination</strong>.
+Kennel Cough vaccine must be administered <strong>at least 7 days</strong> prior to
+boarding. Ask your vet to be sure!</span><br>
+<br>
+We <span style="font-weight: bold;">only</span>
+accept and discharge guests during our <span style="font-weight: bold;">opening hours:</span><br style="font-weight: bold;">
+<br>
+% endif
+<table style="text-align: left; width: 340px; height: 88px;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td></td>
+<td style="width: 122px;"><span style="font-weight: bold;">Mon-Sat</span></td>
+<td style="width: 161px;">10:00-12:30</td>
+</tr>
+<tr>
+<td></td>
+<td style="width: 122px;"></td>
+<td style="width: 161px;">14:00-17:30</td>
+</tr>
+<tr>
+<td></td>
+<td style="width: 122px;"></td>
+<td style="width: 161px;"></td>
+</tr>
+<tr>
+<td style="height: 25px;"></td>
+<td style="width: 122px; height: 25px;"><span style="font-weight: bold;">Sun</span></td>
+<td style="width: 161px; height: 25px;">10:00-13:00</td>
+</tr>
+</tbody>
+</table>
+<br>
+% if conf.deposit and not conf.cancelled:
+<div><small><span style="font-style: italic;">*Deposits are refundable up to 7 days after payment.
+	Please contact us via <a href="mailto:crowbank.partners@gmail.com">email</a> to cancel your booking
+	and your deposit will be refunded in full. After 7 days, deposits are <strong>non-refundable.</strong>
+</span></small><br>
+</div>
+<br>
+% endif
+% endif
+<div style="text-align: center;"><small><span style="font-style: italic;"><strong>All bookings are subject to
+Crowbank Pet Boarding's <a href="http://www.crowbank.co.uk/terms-and-conditions/" target="_blank">Terms
+and Conditions</a></strong></span></small><br>
+</div>
+<br>
+<div><small><span style="font-style: italic;">
+This email has been automatically generated. If you have received this email in error, or if the details are incorrect, please reply and we will address any concerns you may have. Thank you!
+</span></small></div>
+<br>
+<br>
+</body></html>

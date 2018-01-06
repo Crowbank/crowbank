@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="34953bdd-dc51-4654-8882-d602ef48adbf" name="HP Server Deployment" url="http://hp-server">
+        <fileTransfer port="0" mountedRoot="X:\" accessType="MOUNT" />
+      </webServer>
+      <webServer id="46cbb9eb-a109-4247-816c-4ab5e34069bd" name="Reception Depoloyment" url="http://hp-server">
+        <fileTransfer port="0" mountedRoot="C:\Python27\Lib\site-packages\crowbank" accessType="MOUNT" />
+      </webServer>
+    </option>
+  </component>
+</project>
