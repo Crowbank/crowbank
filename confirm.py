@@ -384,9 +384,9 @@ def confirm_all(petadmin, report_parameters, action, asofdate=None, audit_start=
         join vwbooking b on a.bk_no = b.bk_no
         where b.bk_start_date > GETDATE() and aud_date >= '%s' order by b.bk_start_date""" % asofdate
     elif audit_start > 0:
-        sql = """select a.bk_no, aud_type, aud_action, aud_amount, aud_date, aud_booking_count from vwaudit a
+        sql = """select b.bk_no, aud_type, aud_action, aud_amount, aud_date, aud_booking_count from vwaudit_orphan a
         join vwbooking b on a.bk_no = b.bk_no
-        where b.bk_start_date > GETDATE() and aud_no > %d order by b.bk_start_date""" % audit_start
+        where b.bk_start_date > GETDATE() and aud_date >= '%s' order by b.bk_start_date""" % audit_start
     else:
         sql = """select a.bk_no, aud_type, aud_action, aud_amount, aud_date, aud_booking_count, aud_confirm
         from vwrecentaudit a
