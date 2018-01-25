@@ -523,7 +523,7 @@ def main():
     parser.add_argument('-review', action='store_true',
                         help="""Use with command line - display each confirmation and ask
 for approval to send to customer""")
-    parser.add_argument('-audit_start', help='Run for all audit events > AUDIT_START', action='store')
+    parser.add_argument('-audit_start', help='Run for all orphan audit events > AUDIT_START', action='store')
     parser.add_argument('-all', help='Generate report for every booking since last report generation',
                         action='store_true')
     parser.add_argument('-asofdate', help='Generate report for every booking since ASOFDATE [yyyymmdd]',
@@ -554,7 +554,7 @@ for approval to send to customer""")
 
     audit_start = 0
     if args.audit_start:
-        audit_start = int(args.audit_start)
+        audit_start = args.audit_start
 
     additional_text = ''
     if args.add:
