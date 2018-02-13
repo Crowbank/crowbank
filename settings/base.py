@@ -1,8 +1,11 @@
-EMAIL_HOST = 'cp165172.hpdns.net'
-EMAIL_USER = 'confirmations@crowbank.co.uk'
+# EMAIL_HOST = 'cp165172.hpdns.net'
+# EMAIL_USER = 'confirmations@crowbank.co.uk'
 EMAIL_BCC = 'info@crowbank.co.uk'
 # EMAIL_PWD = 'Crowb@nk454!'
-EMAIL_PWD = 'Crowbank454'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USER = 'crowbank.partners@gmail.com'
+EMAIL_PWD = 'fackfdtiecquhggp'
 EMAIL_LOGS = 'crowbank.partners@gmail.com'
 
 IMAGE_FOLDER = 'C:\Python27\Lib\Site-packages\crowbank\img'

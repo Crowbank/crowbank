@@ -58,10 +58,9 @@ class ReportParameters:
         timestamp = time.mktime(datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time()).timetuple())
         timestamp += expiry * 24 * 3600
         timestamp *= 1000
-        fee = decimal.Decimal(1.20)
 
         url = "https://secure.worldpay.com/wcc/purchase?instId=1094566&cartId=PBL-%d&amount=%f&currency=GBP&" %\
-              (bk_no, deposit_amount + fee)
+              (bk_no, deposit_amount)
         url += 'desc=Deposit+for+Crowbank+booking+%%23%d+for+%s&accId1=CROWBANKPETBM1&testMode=0' %\
                (bk_no, urllib2.quote(pet_names))
         url += '&name=%s' % urllib2.quote(customer.display_name())
@@ -380,12 +379,12 @@ def confirm_all(petadmin, report_parameters, action, asofdate=None, audit_start=
         past_messages[bk_no].append((hist_date, destination, subject))
 
     if asofdate:
-        sql = """select a.bk_no, aud_type, aud_action, aud_amount, aud_date, aud_booking_count from vwaudit a
+        sql = """select a.bk_no, aud_type, aud_action, aud_amount, aud_date, aud_booking_count, aud_confirm from vwaudit a
         join vwbooking b on a.bk_no = b.bk_no
         where b.bk_start_date > GETDATE() and aud_date >= '%s' order by b.bk_start_date""" % asofdate
     elif audit_start > 0:
-        sql = """select b.bk_no, aud_type, aud_action, aud_amount, aud_date, aud_booking_count from vwaudit_orphan a
-        join vwbooking b on a.bk_no = b.bk_no
+        sql = """select b.bk_no, aud_type, aud_action, aud_amount, aud_date, aud_booking_count, aud_confirm from vwaudit_orphan a
+        join vwbooking b on a.aud_key = b.bk_no
         where b.bk_start_date > GETDATE() and aud_date >= '%s' order by b.bk_start_date""" % audit_start
     else:
         sql = """select a.bk_no, aud_type, aud_action, aud_amount, aud_date, aud_booking_count, aud_confirm

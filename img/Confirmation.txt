@@ -32,7 +32,7 @@ We have received your inquiry regarding booking ${conf.pet_names} between ${conf
 
 At the moment, we have availability for those dates at a total cost of ${"{0:.2f}".format(conf.booking.gross_amt)}.
 
-If you would like us to make the booking, please pay a deposit of ${"{0:.2f}".format(conf.deposit_amount)} (plus 1.20 transaction fee) by pasting the following to your browser: ${deposit_url}.
+If you would like us to make the booking, please pay a deposit of ${"{0:.2f}".format(conf.deposit_amount)} by pasting the following to your browser: ${deposit_url}.
 
 Alternatively, call us at 01236 729454 to pay over the phone.
 
