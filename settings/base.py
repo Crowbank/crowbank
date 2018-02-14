@@ -8,7 +8,7 @@ EMAIL_USER = 'crowbank.partners@gmail.com'
 EMAIL_PWD = 'fackfdtiecquhggp'
 EMAIL_LOGS = 'crowbank.partners@gmail.com'
 
-IMAGE_FOLDER = 'C:\Python27\Lib\Site-packages\crowbank\img'
+IMAGE_FOLDER = 'C:\Python27\Lib\Site-packages\petadmin\img'
 CONFIRMATIONS_FOLDER = 'D:\Dropbox\Kennels\Confirmations'
 CROWBANK_ADDRESSES = ['info@crowbank.co.uk', 'crowbank.partners@gmail.com', 'eyehudai@gmail.com']
 
