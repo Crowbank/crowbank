@@ -1,0 +1,1 @@
+@py.exe C:\Python27\lib\site-packages\Crowbank\trial.py %*

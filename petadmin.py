@@ -256,7 +256,7 @@ class Customers:
 
         sql = """Select cust_no, cust_surname, cust_forename, cust_addr1, cust_addr2, cust_addr3, cust_postcode,
         cust_telno_home, cust_email, cust_discount, cust_telno_mobile, cust_title, cust_nodeposit,
-        cust_deposit_requested from vwcustomer"""
+        cust_deposit_requested, cust_nosms from vwcustomer"""
         cursor.execute(sql)
         for row in cursor:
             cust_no = row[0]
@@ -274,6 +274,7 @@ class Customers:
             customer.title = row[11]
             customer.nodeposit = row[12]
             customer.deposit_requested = row[13]
+            customer.nosms = row[14]
 
             self.customers[cust_no] = customer
 
@@ -416,7 +417,7 @@ class Pets:
             self.breeds.load()
 
         cursor = self.env.get_cursor()
-        sql = 'select pet_no, cust_no, pet_name, breed_no, spec_desc, pet_dob, pet_sex from vwpet'
+        sql = 'select pet_no, cust_no, pet_name, breed_no, spec_desc, pet_dob, pet_sex, pet_vacc_status from vwpet'
 
         cursor.execute(sql)
         for row in cursor:
@@ -441,6 +442,7 @@ class Pets:
             pet.spec = row[4]
             pet.dob = row[5]
             pet.sex = row[6]
+            pet.vacc_status = row[7]
             self.pets[pet_no] = pet
 
         log.debug('Loaded %d pets', len(self.pets))
@@ -508,6 +510,7 @@ class Bookings:
 
     def __init__(self, env, customers, pets, services):
         self.bookings = {}
+        self.by_start_date = {}
         self.env = env
         self.loaded = False
         self.customers = customers
@@ -520,13 +523,20 @@ class Bookings:
         else:
             return None
 
+    def get_by_start_date(self, start_date):
+        self.load()
+        if start_date in self.by_start_date:
+            return self.by_start_date[start_date]
+        
+        return []
+        
     def load(self, force=False):
         if self.loaded and not force:
             return
 
         log.debug('Loading Bookings')
         sql = """Select bk_no, bk_cust_no, bk_create_date, bk_start_datetime, bk_end_datetime,
-        bk_gross_amt, bk_paid_amt, bk_status, bk_peak, bk_deluxe, bk_skip_confirm from vwbooking"""
+        bk_gross_amt, bk_paid_amt, bk_status, bk_peak, bk_deluxe, bk_skip_confirm, bk_pickup_no from vwbooking"""
         cursor = self.env.get_cursor()
         cursor.execute(sql)
 
@@ -544,7 +554,13 @@ class Bookings:
             booking.peak = row[8]
             booking.deluxe = row[9]
             booking.skip = row[10]
+            booking.pickup = row[11]
             self.bookings[bk_no] = booking
+            sdate = booking.start_date.date()
+            if sdate in self.by_start_date:
+                self.by_start_date[sdate].append(booking)
+            else:
+                self.by_start_date[sdate] = [booking]
 
         sql = 'Select bi_bk_no, bi_pet_no from vwbookingitem_simple'
         cursor.execute(sql)

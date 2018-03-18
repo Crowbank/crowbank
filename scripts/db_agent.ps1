@@ -1,0 +1,1 @@
+﻿sqlcmd -U PA -P petadmin -d crowbank -Q "Execute pmaster"

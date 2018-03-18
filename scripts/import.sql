@@ -1,0 +1,11 @@
+set foreign_key_checks=0;
+call petadmin_clear_all;
+load data local infile 'tblcustomer' into table petadmin_customer;
+load data local infile 'tblbreed' into table petadmin_breed;
+load data local infile 'tblvet' into table petadmin_vet;
+load data local infile 'tblpet' into table petadmin_pet;
+load data local infile 'tblbooking' into table petadmin_booking;
+load data local infile 'tblpayment' into table petadmin_payment;
+load data local infile 'tblbookingitem_varchar' into table petadmin_bookingitem_varchar;
+call petadmin_fix_bookingitem;
+set foreign_key_checks=1;

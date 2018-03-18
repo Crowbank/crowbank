@@ -359,7 +359,7 @@ def confirm_all(petadmin, report_parameters, action, asofdate=None, audit_start=
     cursor = env.get_cursor()
 # start by reading all past emails sent, to safeguard against double-sending
 
-    sql = """select hist_bk_no, hist_date, hist_destination, hist_subject from vwhistory
+    sql = """select hist_bk_no, hist_date, hist_destination, hist_subject from vwhistory2
         where hist_report = 'Conf-mail' and hist_type = 'Email Client'"""
     try:
         cursor.execute(sql)

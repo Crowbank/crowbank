@@ -1,0 +1,13 @@
+﻿option batch on
+option confirm off
+
+open sftp://crowbank:Crowbank454@ssh.pythonanywhere.com/ -hostkey="ssh-rsa 2048 d5:50:bd:8e:23:eb:14:3f:cf:15:87:42:0b:bf:e2:60"
+cd /home/crowbank/petadmin_data/latest/
+lcd "E:\DB Backups\petadmin_data\latest"
+
+send petadmin_prod.sql
+send petadmin_qa.sql
+exit
+
+# Execute the script using a command like:
+# "C:\Program Files (x86)\WinSCP\WinSCP.exe" /log="C:\writable\path\to\log\WinSCP.log" /ini=nul /script="C:\path\to\script\script.txt"

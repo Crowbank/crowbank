@@ -1,0 +1,1 @@
+start pythonw.exe C:\Python27\lib\site-packages\Crowbank\confirm.py %*
