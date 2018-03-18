@@ -24,7 +24,7 @@ log.info('Running sms with ENVIRONMENT=%s', ENVIRONMENT)
 client = TextmagicRestClient()
 
 def pet_name_combine(pets):
-    names = map(lambda p: p.name, unconfirmed_pets)
+    names = map(lambda p: p.name, pets)
     if len(names) == 1:
         return names[0]
     
