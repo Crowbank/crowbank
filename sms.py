@@ -23,7 +23,16 @@ log.info('Running sms with ENVIRONMENT=%s', ENVIRONMENT)
 
 client = TextmagicRestClient()
 
-def send_sms(pa, booking):
+def pet_name_combine(pets):
+    names = map(lambda p: p.name, unconfirmed_pets)
+    if len(names) == 1:
+        return names[0]
+    
+    comb = ', '.join(names[:-1])
+    comb += ' and ' + names[-1]
+    return comb
+
+def send_sms(pa, booking, test):
     
     if booking.start_date.date() == datetime.date.today() + datetime.timedelta(days=1):
         date_string = 'tomorrow'
@@ -33,19 +42,25 @@ def send_sms(pa, booking):
     if (booking.pickup != -1):
         vacc_msg = 'You do not need to prepare vaccination cards this time.\n'
     else:
-        vacc_msg = 'You do not need to bring vaccination cards this time.\n'    
+        vacc_msg = 'You do not need to bring vaccination cards this time.\n'
+    
     unconfirmed_pets = []
     for pet in booking.pets:
         if pet.vacc_status == 'Valid':
             continue
         
         unconfirmed_pets.append(pet)
-        
+
     if unconfirmed_pets:
-        if (booking.pickup != -1):
-            vacc_msg = 'You need to have vaccination cards for %s ready.\n' % ', '.join(map(lambda p: p.name, unconfirmed_pets))
+        if len(unconfirmed_pets) > 1:
+            card_msg = 'vaccination cards'
         else:
-            vacc_msg = 'You need to bring vaccination cards for %s.\n' % ', '.join(map(lambda p: p.name, unconfirmed_pets))
+            card_msg = 'a vaccination card'
+            
+        if (booking.pickup != -1):
+            vacc_msg = 'You need to have %s for %s ready.\n' % (card_msg, pet_name_combine(unconfirmed_pets))
+        else:
+            vacc_msg = 'You need to bring %s for %s.\n' % (card_msg, pet_name_combine(unconfirmed_pets))
         
     if (booking.pickup != -1):
         msg = "We are due to pick up %s for Crowbank %s at %s.\n" % \
@@ -60,16 +75,22 @@ def send_sms(pa, booking):
     phone = booking.customer.telno_mobile.replace(' ', '')
     phone = re.sub('^0', '44', phone)
     
-#    msg += '\n[Testing - would have been sent to %s]' % phone
+    if test:
+        msg += '\n[Testing - would have been sent to %s]' % phone
+        client.messages.create(phones="447590507946", text=msg)
+        log_msg = 'Test Sent: %s\nTo: %s' % (msg, phone)    
+
+    else:
+        log_msg = 'Sent: %s\nTo: %s' % (msg, phone)
+        client.messages.create(phones=phone, text=msg)
     
-#    client.messages.create(phones="447590507946", text=msg)
-    client.messages.create(phones=phone, text=msg)
-    log.info('Sent %s to %s', msg, phone)
+    log.info(log_msg)
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-booking', nargs='*', action='store', type=int, help='Booking number(s)')
     parser.add_argument('-date', action='store', help='The date for which messages are to be sent [YYYYMMDD]')
+    parser.add_argument('-test', action='store_true', help='Send all messages to Eran')
 
     args = parser.parse_args()
 
@@ -77,6 +98,8 @@ def main():
         start_date = datetime.strptime(args.date, '%Y%m%d') 
     else:
         start_date = datetime.date.today() + datetime.timedelta(days=1)
+    
+    test = args.test
     
     pa = PetAdmin(env)
     pa.load()
@@ -91,7 +114,7 @@ def main():
     for booking in bookings:
         customer = booking.customer
         if customer.telno_mobile and not customer.nosms:
-            send_sms(pa, booking)
+            send_sms(pa, booking, test)
         else:
             if customer.nosms:
                 log.warning('Skipping booking %d - customer marked as no sms' % booking.bk_no)
