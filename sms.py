@@ -87,6 +87,7 @@ def send_sms(pa, booking, test):
     log.info(log_msg)
 
 def main():
+    log.debug('Inside main()')
     parser = argparse.ArgumentParser()
     parser.add_argument('-booking', nargs='*', action='store', type=int, help='Booking number(s)')
     parser.add_argument('-date', action='store', help='The date for which messages are to be sent [YYYYMMDD]')
@@ -125,4 +126,5 @@ def main():
 
 
 if __name__ == '__main__':
+    log.debug('Testing __name__ (%s) against __main__', __name__)
     main()
