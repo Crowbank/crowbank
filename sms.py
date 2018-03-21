@@ -87,7 +87,7 @@ def send_sms(pa, booking, test):
     log.info(log_msg)
 
 def main():
-    log.debug('Inside main()')
+    log.info('Inside main()')
     parser = argparse.ArgumentParser()
     parser.add_argument('-booking', nargs='*', action='store', type=int, help='Booking number(s)')
     parser.add_argument('-date', action='store', help='The date for which messages are to be sent [YYYYMMDD]')
@@ -118,13 +118,14 @@ def main():
             send_sms(pa, booking, test)
         else:
             if customer.nosms:
-                log.warning('Skipping booking %d - customer marked as no sms' % booking.bk_no)
+                log.warning('Skipping booking %d - customer marked as no sms' % booking.no)
             else:
-                log.warning('Skipping booking %d - no mobile number' % booking.bk_no)
+                log.warning('Skipping booking %d - no mobile number' % booking.no)
 
     env.close()
 
 
+log.info('Testing __name__ (%s) against __main__', __name__)
+
 if __name__ == '__main__':
-    log.debug('Testing __name__ (%s) against __main__', __name__)
     main()
