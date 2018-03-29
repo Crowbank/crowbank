@@ -557,10 +557,11 @@ class Bookings:
             booking.pickup = row[11]
             self.bookings[bk_no] = booking
             sdate = booking.start_date.date()
-            if sdate in self.by_start_date:
-                self.by_start_date[sdate].append(booking)
-            else:
-                self.by_start_date[sdate] = [booking]
+            if booking.status == '' or booking.status == 'V':
+                if sdate in self.by_start_date:
+                    self.by_start_date[sdate].append(booking)
+                else:
+                    self.by_start_date[sdate] = [booking]
 
         sql = 'Select bi_bk_no, bi_pet_no from vwbookingitem_simple'
         cursor.execute(sql)
