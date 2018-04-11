@@ -96,6 +96,7 @@ def main():
     parser.add_argument('-date', action='store', help='The date for which messages are to be sent [YYYYMMDD]')
     parser.add_argument('-test', action='store_true', help='Send all messages to Eran')
     parser.add_argument('-msg', action='store', help='Alternative message to send')
+    parser.add_argument('-customer', action='store', help='Customer number')
 
     args = parser.parse_args()
 
@@ -121,10 +122,15 @@ def main():
     else:
         msg = ''
     
+    if args.customer:
+        customer = args.customer
+    else:
+        customer = 0
+    
     for booking in bookings:
         customer = booking.customer
         if customer.telno_mobile and not customer.nosms:
-            send_sms(pa, booking, msg, test)
+            send_sms(pa, booking, msg, customer, test)
         else:
             if customer.nosms:
                 log.warning('Skipping booking %d - customer marked as no sms' % booking.no)
