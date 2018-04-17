@@ -17,6 +17,7 @@ def main():
 
     vacc_path = r'Z:\\kennels\\vaccination cards'
     patt = re.compile('^(\d+)\.pdf$')
+    temp_patt = re.compile('^-(\d+)\.pdf$')
 
     if args.path:
         vacc_path = args.path
@@ -31,6 +32,16 @@ def main():
     for row in cursor:
         pet_docs[row[0]] = row[1]
 
+    sql = 'select pet_no, pet_score from petadmin6..tblpet where pet_score > 0'
+    cursor = env.get_cursor()
+
+    cursor.execute(sql)
+    
+    pet_msg = {}
+    
+    for row in cursor:
+        pet_msg[row[1]] = row[0]
+
     dirs = os.listdir(vacc_path)
 
     added = 0
@@ -42,19 +53,29 @@ def main():
         m = patt.match(vacc_file)
         if m:
             scanned += 1
-            pet_no = int(m.group(1))
+            msg_no = int(m.group(1))
             full_path = os.path.join(vacc_path, vacc_file)
 
-            if not (pet_no in pet_docs and
-                            pet_docs[pet_no].lower().replace('\\', '') == full_path.lower().replace('\\', '')):
-                if pet_no in pet_docs:
-                    replaced += 1
-                    log.debug('Replacing path %s with %s', pet_docs[pet_no], full_path)
-
-                added += 1
+            added += 1
+            sql = 'Execute padd_vacc %d' % pet_no
+            
+            env.execute(sql)
+            log.info('Added vaccination for pet_no = %d' % pet_no)
+        
+        m = temp_patt.match(vacc_file)
+        if m:
+            scanned += 1
+            msg_no = int(m.group(1))
+            
+            if msg_no in pet_msg:
+                full_path = os.path.join(vacc_path, vacc_file)
+                pet_no = pet_msg[msg_no]
+                new_path = os.path.join(vacc_path, '%d.pdf' % pet_no)
+    
+                os.rename(full_path, new_path)
                 sql = 'Execute padd_vacc %d' % pet_no
                 env.execute(sql)
-                log.info('Added vaccination for pet_no = %d' % pet_no)
+                log.info('Renamed and added vaccination for pet_no = %d' % pet_no)
 
     added -= replaced
 
