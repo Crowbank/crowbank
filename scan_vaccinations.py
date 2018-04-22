@@ -22,7 +22,7 @@ def main():
     if args.path:
         vacc_path = args.path
 
-    sql = 'select pd_pet_no, pd_path from vwpetdocument'
+    sql = "select pd_pet_no, pd_path from vwpetdocument where pd_desc = 'Vaccination Card'";
     cursor = env.get_cursor()
 
     cursor.execute(sql)
