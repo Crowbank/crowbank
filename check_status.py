@@ -28,7 +28,7 @@ def main():
     if target == 'local':
         url = 'http://192.168.0.200/wordpress/wp-content/plugins/crowbank/status.php'
     else:
-        url = 'http://dev.crowbank.co.uk/wp-content/plugins/crowbank/status.php'
+        url = 'http://dev.crowbankkennels.co.uk/wp-content/plugins/crowbank/status.php'
 
     r = requests.get(url)
     status = r.json()
@@ -37,14 +37,18 @@ def main():
     lasttransfer = status['lasttransfer']['date']
     system_status = status['status']
 
-    age = 1300
-    system_status = 'Unloaded'
+    error = False
     
     if age > 1200:
+        error = True
         log.error('Data age on %s system is %d seconds, last transfer on %s' % (target, age, lasttransfer))
     
     if system_status != 'Loaded':
+        error = True
         log.error('Status on %s system is %s' % (target, system_status))
+
+    if not error:
+        log.info('Status on %s system is good. Last transfer, %d seconds ago, at %s' % (target, age, lasttransfer))
 
 if __name__ == '__main__':
     main()
