@@ -32,7 +32,7 @@ def pet_name_combine(pets):
     comb += ' and ' + names[-1]
     return comb
 
-def send_sms(pa, booking, msg, test):
+def send_sms(pa, booking, msg, customer, test):
     
     if msg:
         pass
@@ -75,7 +75,7 @@ def send_sms(pa, booking, msg, test):
         msg += vacc_msg
         msg += "Call us at 01236 729454 or reply to this message with any changes"
     
-    phone = booking.customer.telno_mobile.replace(' ', '')
+    phone = customer.telno_mobile.replace(' ', '')
     phone = re.sub('^0', '44', phone)
     
     if test:
