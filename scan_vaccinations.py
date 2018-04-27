@@ -53,14 +53,19 @@ def main():
         m = patt.match(vacc_file)
         if m:
             scanned += 1
-            msg_no = int(m.group(1))
+            pet_no = int(m.group(1))
             full_path = os.path.join(vacc_path, vacc_file)
 
-            added += 1
-            sql = 'Execute padd_vacc %d' % pet_no
-            
-            env.execute(sql)
-            log.info('Added vaccination for pet_no = %d' % pet_no)
+            if not (pet_no in pet_docs and
+                            pet_docs[pet_no].lower().replace('\\', '') == full_path.lower().replace('\\', '')):
+                if pet_no in pet_docs:
+                    replaced += 1
+                    log.debug('Replacing path %s with %s', pet_docs[pet_no], full_path)
+
+                added += 1
+                sql = 'Execute padd_vacc %d' % pet_no
+                env.execute(sql)
+                log.info('Added vaccination for pet_no = %d' % pet_no)
         
         m = temp_patt.match(vacc_file)
         if m:
