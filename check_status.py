@@ -7,29 +7,22 @@ from os import getenv
 import requests
 from petadmin import Environment
 
-ENVIRONMENT = getenv("DJANGO_ENVIRONMENT")
-if not ENVIRONMENT:
-    ENVIRONMENT = 'prod'
 
 log = logging.getLogger(__name__)
-env = Environment()
+env = Environment('check_status')
 
 env.configure_logger(log)
-
-env.context = 'check_status'
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('target', action='store', help='Target of check: local or remote')
-    parser.add_argument('-env', help='Choose environemnt (prod/qa/dev)', action='store')
+    parser.add_argument('-fail', help='Simulate a fail', action='store_true')
 
     args = parser.parse_args()
 
+        
     log.info('Running %s', ' '.join(sys.argv))
 
-    if args.env:
-        ENVIRONMENT = args.env
-        
     target = args.target
     
     if target == 'local':
@@ -37,7 +30,7 @@ def main():
     else:
         url = 'http://dev.crowbankkennels.co.uk/wp-content/plugins/crowbank/status.php'
 
-    sql = "select max(rs_lasttransfer) from tblremotestatus where rs_sev_no > 1";
+    sql = "select ws_state, ws_lasttransfer from vwwebsite_state where ws_iscurrent = 1";
     cursor = env.get_cursor()
 
     cursor.execute(sql)
@@ -45,40 +38,53 @@ def main():
     last_fail = 0
     
     for row in cursor:
-        last_fail = row[0]
+        previous_status = row[0]
+        previous_lasttransfer = row[1]
 
     now = datetime.now()
     r = requests.get(url)
     status = r.json()
     
     age = status['age']
-    lasttransfer = status['lasttransfer']['date']
+    lasttransfer_text = status['lasttransfer']['date']
     system_status = status['status']
 
     in_date_format = '%Y-%m-%d %H:%M:%S.%f'
     date_format = '%Y-%m-%d %H:%M:%S'
-    lasttransfer = datetime.strptime(lasttransfer, in_date_format)
+    lasttransfer = datetime.strptime(lasttransfer_text, in_date_format)
+    lasttransfer_text = lasttransfer.strftime(date_format)
     
-    sev_no = 1
-    
-    if (lasttransfer == last_fail):
-        return
+    new_status = 'Loaded'
     
     if age > 1200:
-        sev_no = 3
+        new_status = 'Obsolete'
         log.error('Data age on %s system is %d seconds, last transfer on %s' % (target, age, lasttransfer))
     
     if system_status != 'Loaded':
-        sev_no = 3
+        new_status = system_status
         log.error('Status on %s system is %s' % (target, system_status))
 
-    if sev_no < 3:
-        log.info('Status on %s system is good. Last transfer, %d seconds ago, at %s' % (target, age, lasttransfer))
+    if new_status == 'Loaded':
+        if args.fail:
+            new_status = 'Fail'
+            log.error('Simulated fail on %s system' % target)
+        else:
+            log.info('Status on %s system is good. Last transfer, %d seconds ago, at %s' % (target, age, lasttransfer))
 
-    sql = "Execute premotestatus '%s', '%s', %d, '%s', %d" % \
-        (now.strftime(date_format), system_status, age, lasttransfer.strftime(date_format), sev_no)
+    if target == 'remote':
+        send_email = (new_status != previous_status) or (lasttransfer != previous_lasttransfer)
     
-    cursor.execute(sql)
+        sql = "execute pset_website_state '%s', '%s', %d, '%s'" % (new_status, r, send_email, lasttransfer_text)
+        
+        env.execute(sql)
+        
+        if send_email:
+            body = 'Remote system status changed from %s to %s. Last successful transfer was %s, %d seconds ago' % (previous_status, new_status, lasttransfer_text, age)
+            subject = 'Remote system updated to %s' % new_status
+
+            send_to = env.email_logs            
+            env.send_email(send_to, body, subject, body)
+    
     env.close()
 
 

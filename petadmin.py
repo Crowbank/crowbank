@@ -17,12 +17,9 @@ ENVIRONMENT = getenv("DJANGO_ENVIRONMENT")
 if not ENVIRONMENT:
     ENVIRONMENT = 'prod'
 
-
 from settings import *
 
-
 TAG_RE = re.compile(r'<[^>]+>')
-
 
 def clean_html(html_text):
     return TAG_RE.sub('', html_text)
@@ -70,8 +67,14 @@ class BufferingSMTPHandler(logging.handlers.BufferingHandler):
 
 
 class Environment:
-    def __init__(self):
-        self.env_type = ''
+    def __init__(self, context, env_type = ''):
+        if not env_type:
+            if ENVIRONMENT:
+                env_type = ENVIRONMENT
+            else:
+                env_type = 'prod'
+                
+        self.env_type = env_type
         self.email_host = EMAIL_HOST
         self.email_user = EMAIL_USER
         self.email_bcc = EMAIL_BCC
@@ -79,12 +82,13 @@ class Environment:
         self.email_logs = EMAIL_LOGS
         self.smtp_server = None
         self.connection = None
-        self.is_test = True
+        self.is_test = (env_type in ('qa', 'dev'))
         self.smtp_handler = None
         self.crowbank_addresses = CROWBANK_ADDRESSES
-        self.context = ''
+        self.context = context
         self.key = 0
         self.key_type = ''
+        
 
     def set_key(self, key, key_type):
         self.key = key
@@ -106,9 +110,11 @@ class Environment:
 
         return self.smtp_server
 
-    def configure_logger(self, logger, debug=True):
+    def configure_logger(self, logger):
         log_file = LOG_FILE
         file_handler = logging.handlers.TimedRotatingFileHandler(log_file, when='W0')
+        
+        debug = (self.env_type in ('qa', 'dev'))
 
         self.smtp_handler = BufferingSMTPHandler(self)
         stream_handler = logging.StreamHandler()
@@ -161,7 +167,7 @@ class Environment:
     def send_email(self, send_to, send_body, send_subject, alt_body, force_send=False):
         msg = MIMEMultipart('alternative')
 
-        if ENVIRONMENT != "prod":
+        if self.env_type != "prod":
             send_subject += ' (%s)' % ENVIRONMENT
             send_to = self.email_bcc
 

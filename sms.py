@@ -8,16 +8,9 @@ from os import getenv
 
 
 log = logging.getLogger(__name__)
-env = Environment()
+env = Environment('sms')
 
-ENVIRONMENT = getenv("DJANGO_ENVIRONMENT")
-if not ENVIRONMENT:
-    ENVIRONMENT = 'prod'
-
-env.context = 'sms'
-
-env.is_test = ENVIRONMENT in ('dev', 'qa')
-env.configure_logger(log, ENVIRONMENT == 'dev')
+env.configure_logger(log)
 
 log.info('Running sms with ENVIRONMENT=%s', ENVIRONMENT)
 

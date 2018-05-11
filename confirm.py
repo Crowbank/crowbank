@@ -12,16 +12,13 @@ from os import getenv, path
 from settings import IMAGE_FOLDER, CONFIRMATIONS_FOLDER
 
 log = logging.getLogger(__name__)
-env = Environment()
 
 ENVIRONMENT = getenv("DJANGO_ENVIRONMENT")
 if not ENVIRONMENT:
     ENVIRONMENT = 'prod'
 
-env.context = 'confirm'
-
-env.is_test = ENVIRONMENT in ('dev', 'qa')
-env.configure_logger(log, ENVIRONMENT == 'dev')
+env = Environment('confirm')
+env.configure_logger(log)
 
 log.info('Running confirm with ENVIRONMENT=%s', ENVIRONMENT)
 

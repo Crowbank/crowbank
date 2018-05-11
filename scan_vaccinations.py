@@ -6,7 +6,7 @@ import os
 
 
 log = logging.getLogger(__name__)
-env = Environment()
+env = Environment('scan_vaccinations')
 
 env.configure_logger(log)
 
