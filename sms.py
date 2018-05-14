@@ -1,5 +1,5 @@
 from textmagic.rest import TextmagicRestClient
-from petadmin import PetAdmin, Environment
+from petadmin import PetAdmin, Environment, ENVIRONMENT
 import re
 import datetime
 import argparse
