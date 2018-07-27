@@ -80,6 +80,7 @@ class Environment:
         self.email_bcc = EMAIL_BCC
         self.email_pwd = EMAIL_PWD
         self.email_logs = EMAIL_LOGS
+        self.email_replyto = EMAIL_REPLYTO
         self.smtp_server = None
         self.connection = None
         self.is_test = (env_type in ('qa', 'dev'))

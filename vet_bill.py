@@ -5,7 +5,7 @@ import os
 from datetime import date
 
 log = logging.getLogger(__name__)
-env = Environment()
+env = Environment("vet_bill")
 
 env.configure_logger(log)
 
@@ -13,7 +13,7 @@ def main():
     bill_path = r'Z:\kennels\Vet Bills'
     patt = re.compile('^(\d+) (\d{4})-(\d{2})-(\d{2})\.pdf$')
 
-    sql = "select pd_pet_no, pd_path from vwpetdocument where pd_desc = 'Vet Bill'"
+    sql = "select pd_pet_no, pd_path from vwpetdocument where left(pd_desc, 8) = 'Vet Bill'"
     cursor = env.get_cursor()
 
     cursor.execute(sql)
