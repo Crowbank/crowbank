@@ -193,7 +193,8 @@ class Environment:
             server.sendmail(self.email_user, [send_to], msg.as_string())
 
     def send_email_old(self, send_to, send_body, send_subject, force_send=False):
-        target = [send_to, self.email_bcc]
+#        target = [send_to, self.email_bcc]
+        target = [send_to]
         if ENVIRONMENT != "prod":
             send_subject += ' (%s)' % ENVIRONMENT
             target = [self.email_bcc]

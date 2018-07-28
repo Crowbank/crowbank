@@ -6,6 +6,7 @@ EMAIL_PWD = 'Crowb@nk454!'
 # EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_USER = 'crowbank.partners@gmail.com'
 # EMAIL_PWD = 'fackfdtiecquhggp'
+EMAIL_BCC = 'crowbank.partners@gmail.com'
 EMAIL_LOGS = 'crowbank.partners@gmail.com'
 EMAIL_REPLYTO = 'info@crowbank.co.uk'
 
