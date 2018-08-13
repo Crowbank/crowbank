@@ -10,7 +10,7 @@ env = Environment("vet_bill")
 env.configure_logger(log)
 
 def main():
-    bill_path = r'Z:\kennels\Vet Bills'
+    bill_path = r'K:\Vet Bills'
     patt = re.compile('^(\d+) (\d{4})-(\d{2})-(\d{2})\.pdf$')
 
     sql = "select pd_pet_no, pd_path from vwpetdocument where left(pd_desc, 8) = 'Vet Bill'"

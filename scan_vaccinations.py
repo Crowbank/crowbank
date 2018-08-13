@@ -15,7 +15,7 @@ def main():
     parser.add_argument('-path', action='store', help='Path to directory to be scanned')
     args = parser.parse_args()
 
-    vacc_path = r'Z:\\kennels\\vaccinations'
+    vacc_path = r'K:\\vaccinations'
     patt = re.compile('^(\d+)\.pdf$')
     temp_patt = re.compile('^-(\d+)\.pdf$')
 
