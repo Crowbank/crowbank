@@ -34,16 +34,17 @@ def main():
         vacc_renames[row[0]] = row[1]
     
     for msg_no in vacc_renames.keys():
-        filename = '-' + msg_no + '.pdf'
+        filename = '-' + str(msg_no) + '.pdf'
         if exists(join(vacc_path, filename)):
-            rename(join(vacc_path, filename), join(vacc_path, vacc_names[msg_no] + '.pdf'))
-            log.info('Renamed -' + msg_no + '.pdf to ' + pet_no + '.pdf')
+            pet_no = vacc_renames[msg_no]
+            rename(join(vacc_path, filename), join(vacc_path, str(pet_no) + '.pdf'))
+            log.info('Renamed -' + str(msg_no) + '.pdf to ' + str(pet_no) + '.pdf')
             renamed += 1
-            sql = 'delete from tblmessagepet where msg_no = ' + msg_no
+            sql = 'delete from tblmessagepet where msg_no = ' + str(msg_no)
             env.execute(sql)
 
     if renamed > 0:
-        log.info('Renamed ' + renamed + ' files')
+        log.info('Renamed ' + str(renamed) + ' files')
 
 if __name__ == '__main__':
     main()
