@@ -75,12 +75,13 @@ def main():
             if msg_no in pet_msg:
                 full_path = os.path.join(vacc_path, vacc_file)
                 pet_no = pet_msg[msg_no]
-                new_path = os.path.join(vacc_path, '%d.pdf' % pet_no)
-    
-                os.rename(full_path, new_path)
-                sql = 'Execute padd_vacc %d' % pet_no
-                env.execute(sql)
-                log.info('Renamed and added vaccination for pet_no = %d' % pet_no)
+                if not pet_no in pet_docs:
+                    new_path = os.path.join(vacc_path, '%d.pdf' % pet_no)
+        
+                    os.rename(full_path, new_path)
+                    sql = 'Execute padd_vacc %d' % pet_no
+                    env.execute(sql)
+                    log.info('Renamed and added vaccination for pet_no = %d' % pet_no)
 
     added -= replaced
 

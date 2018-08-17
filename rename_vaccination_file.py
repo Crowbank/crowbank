@@ -22,7 +22,7 @@ def main():
     if args.path:
         vacc_path = args.path
 
-    sql = "select msg_no, pet_no from tblmessagepet";
+    sql = "select msg_no, pet_no from tblmessagepet where vacc_moved = 0";
     cursor = env.get_cursor()
 
     cursor.execute(sql)
@@ -40,7 +40,7 @@ def main():
             rename(join(vacc_path, filename), join(vacc_path, str(pet_no) + '.pdf'))
             log.info('Renamed -' + str(msg_no) + '.pdf to ' + str(pet_no) + '.pdf')
             renamed += 1
-            sql = 'delete from tblmessagepet where msg_no = ' + str(msg_no)
+            sql = 'update tblmessagepet set vacc_moved = 1 where msg_no = ' + str(msg_no)
             env.execute(sql)
 
     if renamed > 0:
