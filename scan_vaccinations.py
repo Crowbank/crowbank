@@ -1,3 +1,4 @@
+#!/cygdrive/c/Python/python
 from petadmin import PetAdmin, Environment
 import argparse
 import logging
