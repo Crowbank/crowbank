@@ -1,4 +1,4 @@
-#!/cygdrive/c/Python/python
+#!/cygdrive/c/Python27/python
 from petadmin import PetAdmin, Environment
 import argparse
 import logging
