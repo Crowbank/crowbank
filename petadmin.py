@@ -342,8 +342,7 @@ class Customer:
         return full_address
 
     def write(self, env):
-        sql = """insert into petadmin6..tblcustomer (cust_surname, cust_forename, cust_addr1, cust_addr3, cust_postcode,
-cust_telno_home, cust_telno_mobile, cust_email, cust_notes) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s',)""" % (
+        sql = """execute pcreate_customer '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'""" % (
             self.surname, self.forename, self.addr1, self.addr3, self.postcode, self.telno_home, self.telno_mobile,
             self.email, self.notes)
 

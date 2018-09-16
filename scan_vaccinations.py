@@ -32,7 +32,7 @@ def main():
     for row in cursor:
         pet_docs[row[0]] = row[1]
 
-    sql = 'select pet_no, pet_score from petadmin6..tblpet where pet_score > 0'
+    sql = 'select pet_no, pet_score from vwpet where pet_score > 0'
     cursor = env.get_cursor()
 
     cursor.execute(sql)
