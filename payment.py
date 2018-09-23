@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from datetime import date, timedelta
 from petadmin import Environment
 import argparse

@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import fbchat
 from settings import FACEBOOK_USER, FACEBOOK_PASSWORD
 import logging

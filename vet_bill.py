@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from petadmin import PetAdmin, Environment
 import logging
 import re

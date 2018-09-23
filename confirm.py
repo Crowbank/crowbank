@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import datetime
 import time
 from mako.template import Template

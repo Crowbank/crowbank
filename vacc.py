@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from petadmin import Environment
 import argparse
 
