@@ -1,4 +1,8 @@
-import pymssql
+import sys
+if sys.platform == 'win32':
+    import pymssql
+if sys.platform == 'cygwin':
+    import pyodbc
 import datetime
 import decimal
 import smtplib
@@ -75,6 +79,7 @@ class Environment:
                 env_type = 'prod'
                 
         self.env_type = env_type
+        self.platform = sys.platform
         self.email_host = EMAIL_HOST
         self.email_user = EMAIL_USER
         self.email_bcc = EMAIL_BCC
@@ -146,7 +151,10 @@ class Environment:
 
     def get_connection(self):
         if not self.connection:
-            self.connection = pymssql.connect(server=DB_SERVER, user=DB_USER, password=DB_PWD, database=DB_DATABASE)
+            if self.platform == 'win32':
+                self.connection = pymssql.connect(server=DB_SERVER, user=DB_USER, password=DB_PWD, database=DB_DATABASE)
+            else:
+                self.connection = pyodbc.connect('DRIVER={SQL SERVER};SERVER=%s;DATABASE=%s;UID=%s;PWD=%s' % (DB_SERVER, DB_DATABASE, DB_USER, DB_PWD))
 
         return self.connection
 
