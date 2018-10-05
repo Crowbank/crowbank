@@ -58,7 +58,7 @@ def main():
             full_path = os.path.join(vacc_path, vacc_file)
 
             if not (pet_no in pet_docs and
-                            pet_docs[pet_no].lower().replace('\\', '') == full_path.lower().replace('\\', '')):
+                            pet_docs[pet_no].lower().replace('\\', '').replace('/', '') == full_path.lower().replace('\\', '').replace('/', '')):
                 if pet_no in pet_docs:
                     replaced += 1
                     log.debug('Replacing path %s with %s', pet_docs[pet_no], full_path)
