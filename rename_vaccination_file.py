@@ -6,6 +6,7 @@ import re
 from os.path import exists, join
 from os import rename
 from string import split
+from settings import *
 
 
 log = logging.getLogger(__name__)
