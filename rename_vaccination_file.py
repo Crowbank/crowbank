@@ -18,7 +18,7 @@ def main():
     parser.add_argument('-path', action='store', help='Path to directory to be scanned')
     args = parser.parse_args()
 
-    vacc_path = r'K:\\vaccinations'
+    vacc_path = VACC_FOLDER
 
     if args.path:
         vacc_path = args.path

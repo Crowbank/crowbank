@@ -1,0 +1,260 @@
+#!/bin/bash
+
+start=1
+end=13
+loop=0
+
+source ~/.bashrc
+
+usage () {
+    echo "website_sync [ ( -s | --start ) start_stage ] [ ( -e | --end ) end_stage ]"
+    echo "             [ -l | --loop ]:              loop continuously"
+    echo "             [ -m | --messages ]:          stages 1-7, downloading and processing messages only"
+    echo "             [ -u | --upload ]:            stages 8-13, uploading data only"
+    echo "Stages:"
+    echo "1: Remote messages prepared"
+    echo "2: Remote messages retrieved"
+    echo "3: Remote messages loaded"
+    echo "4: Local messages prepared"
+    echo "5: All messages loaded to MSSQL"
+    echo "6: Messages processed"
+    echo "7: Messages processed feedback"
+    echo "8: pmaster executed"
+    echo "9: Local mysql staging populated"
+    echo "10: Local staging dumped"
+    echo "11: Local dumped uploaded"
+    echo "12: Refresh from staging executed"
+    echo "13: Vaccination folder synced"
+    }
+
+error_exit () {
+    echo "$1" 1>&2
+    plog $1 'ERROR'
+    exit 1
+}
+
+plog "Starting website_sync $@"
+
+while [ "$1" != "" ]; do
+      case $1 in
+	  -s | --start ) shift
+			 start=$1
+			 ;;
+	  -e | --end ) shift
+		       end=$1
+		       ;;
+	  -l | --loop ) shift
+			 loop=1
+			 ;;
+	  -m | --messages ) shift
+			    start=1
+			    end=7
+			    ;;
+	  -u | --upload ) shift
+			  start=8
+			  end=13
+			  ;;
+	  -h | --help ) usage
+			exit
+			;;
+	  * ) usage
+	      exit 1
+      esac
+      shift
+done
+
+TMP_DRIVE=/cygdrive/e/tmp
+REMOTE_BIN=dev/bin
+
+cd $TMP_DRIVE
+
+cont=1
+
+while [ $cont -eq 1 ]
+      do
+
+timestamp="$(date '+%Y%m%d_%H%M%S')"
+
+plog 'Website sync starting'
+stage=1
+
+(( $start <= $stage && $end >= $stage )) && {
+# Step 1: Copy remote data, both form (rg_lead etc.) and message (messages etc.) from remote database to local mysql
+
+# a. Run the remote script prepare_messages.sh. This script runs the following:
+#    cd ~/dev/public_html/staging
+#    mysql  --execute="call crowbank_w301_dev.PrepareMessages();"
+#    mysqldump -pCrowbank454 -u crowbank_petadmin -h localhost crowbank_staging crwbnk_messages crwbnk_msgmeta > remote_messages_dev.sql
+#    mysqldump -pCrowbank454 -u crowbank_petadmin -h localhost crowbank_wp301 crwbnk_rg_lead crwbnk_rg_lead_detail > remote_messages.sql
+#    zip remote_messages remote_messages*.sql
+
+cssh "$REMOTE_BIN/prepare_messages.sh" || error_exit "Remote prepare_messages failed"
+msg="$stage: Remote messages prepared"
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+(( stage++ ))
+
+(( $start <= $stage && $end >= $stage )) && {
+
+# b. Transfer the file locally
+
+download dev/staging/remote_messages.zip . || error_exit "Downloading remote_messages failed"
+
+# c. unzip
+
+rm remote_messages*.sql
+
+unzip remote_messages.zip || error_exit "Unzipping remote_messages failed"
+msg="$stage: Remote messages retrieved"
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+(( stage++ ))
+(( $start <= $stage && $end >= $stage )) && {
+# d. load those tables to local staging tables
+
+cmysql_load < remote_messages.sql || error_exit "Loading remote_messages failed"
+cmysql_load < remote_messages_dev.sql || error_exit "Loading remote_messages_dev failed"
+msg="$stage: Remote messages loaded"
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+(( stage++ ))
+(( $start <= $stage && $end >= $stage )) && {
+
+#    d. Run local PrepareMessages to add local messages to local staging tables (note - unlike the remote version, this one does not truncate)
+
+cmysql "call PrepareMessages();" || error_exit "Local PrepareMessages failed"
+# csqlcmd "Execute ptruncate_incoming_tables" || error_exit "ptruncate_incoming_tables failed"
+
+msg="$stage: Local messages prepared"
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+(( stage++ ))
+(( $start <= $stage && $end >= $stage )) && {
+#    e. Run DL to transfer local message content to SQL SERVER database
+
+DLRun 9 || error_exit "DLRun 9 failed"
+sleep 10
+msg="$stage: All messages loaded to MSSQL"
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+(( stage++ ))
+(( $start <= $stage && $end >= $stage )) && {
+#    f. Run SQL Server command to process new messages
+
+csqlcmd "Execute pimport_rg_lead" || error_exit "pimport_rg_lead failed"
+csqlcmd "Execute pmessage_process" || error_exit "pmessage_process failed"
+
+rename_vaccination_file.py || plog "rename_vaccination_file failed"
+msg="$stage: Messages processed"
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+(( stage++ ))
+(( $start <= $stage && $end >= $stage )) && {
+#    g. Run MySQL command to mark messages as 'sent', both locally and remotely.
+
+cssh $REMOTE_BIN/messages_processed.sh || error_exit "Remote messages_processed failed"
+cmysql "call MessagesProcessed();" || error_exit "Local MessagesProcessed failed"
+
+msg="$stage: Messages processed feedback"
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+(( stage++ ))
+(( $start <= $stage && $end >= $stage )) && {
+# Step 2: Transfer PetAdmin info to MySQL databases
+
+#    a. Run pmaster on SQL Server to collect relevant information into mysql database
+
+csqlcmd "Execute pmaster" || error_exit "pmaster failed"
+msg="$stage: pmaster executed"
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+(( stage++ ))
+(( $start <= $stage && $end >= $stage )) && {
+#    b. Run DL to transfer from SQLEXPRESS.mysql database to MySQL.staging
+DLRun 12 || error_exit "DLRun 11 failed"
+sleep 10
+msg="$stage: Local mysql staging populated"
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+(( stage++ ))
+(( $start <= $stage && $end >= $stage )) && {
+#    c. Run RefreshFromStaging to copy new rows into main (crowbank_petadmin) database
+
+cmysql "call RefreshFromStaging();" || error_exit "Local RefreshFromStaging failed"
+
+#    d. Dump staging database from localhost to a file, and read into remote database
+
+mysqldump --host=localhost --result-file crowbank_petadmin.sql --user=root -pCrowbank454! --ignore-table=staging.tbllog staging || error_exit "Local sqldump failed"
+msg="$stage: Local staging dumped"
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+(( stage++ ))
+(( $start <= $stage && $end >= $stage )) && {
+#    e. Compress
+
+zip crowbank_petadmin.zip crowbank_petadmin.sql
+rm crowbank_petadmin_prev.sql
+mv crowbank_petadmin.sql crowbank_petadmin_prev.sql
+
+# f. ftp over to website
+
+upload crowbank_petadmin.zip dev/staging/crowbank_petadmin.zip || error_exit "Uploading crowbank_petadmin.zip failed"
+rm crowbank_petadmin.zip
+msg="$stage: Local dumped uploaded"
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+(( stage++ ))
+(( $start <= $stage && $end >= $stage )) && {
+# g. Execute remote script with the following lines:
+
+cssh $REMOTE_BIN/refresh_from_staging.sh || error_exit "Remote refresh_from_staging failed"
+
+msg="$stage: Refresh from staging executed"
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+(( stage++ ))
+(( $start <= $stage && $end >= $stage )) && {
+
+vacc_sync.bat || error_exit "vacc_sync failed"
+
+plog 'Vaccination folder synced'
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+}
+
+msg='Web sync completed'
+plog "$msg"
+echo "$(date '+%H:%M:%S')  $msg"
+
+if [ $loop -eq 0 ]
+then
+    cont=0
+fi
+
+sleep 60
+done
+
