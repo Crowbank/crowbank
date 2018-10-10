@@ -15,7 +15,7 @@ env.configure_logger(log)
 def strip_path(s):
     import re
     
-    m = re.match('.*\\([^\\]*)$', s)
+    m = re.match('.*\\\\([^\\\\]*)$', s)
     if m:
         return m.group(1)
     m = re.match('.*/([^/]*)$', s)
