@@ -4,6 +4,7 @@ import argparse
 import logging
 import re
 import os
+from settings import *
 
 
 log = logging.getLogger(__name__)
@@ -16,7 +17,7 @@ def main():
     parser.add_argument('-path', action='store', help='Path to directory to be scanned')
     args = parser.parse_args()
 
-    vacc_path = r'K:\\vaccinations'
+    vacc_path = VACC_FOLDER
     patt = re.compile('^(\d+)\.pdf$')
     temp_patt = re.compile('^-(\d+)\.pdf$')
 
