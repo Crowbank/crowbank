@@ -1,9 +1,9 @@
 import sys
 
 if sys.platform == 'win32':
-    LOG_FILE = 'C:\Python27\Lib\Site-packages\crowbank\logs\crowbank.log'
+    LOG_FILE = 'Z:\Website\logs\crowbank.log'
 else:
-    LOG_FILE = '/usr/lib/python2.7/site-packages/crowbank/logs/crowbank.log'
+    LOG_FILE = '/dropbox/Website/crowbank.log'
 
 DB_SERVER = 'HP-SERVER\\SQLEXPRESS'
 DB_USER = 'PA'
