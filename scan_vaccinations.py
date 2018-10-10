@@ -50,6 +50,7 @@ def main():
     replaced = 0
     scanned = 0
     missing = 0
+    first = True
 
     for vacc_file in dirs:
         m = patt.match(vacc_file)
@@ -68,6 +69,11 @@ def main():
                 sql = 'Execute padd_vacc %d' % pet_no
                 env.execute(sql)
                 log.info('Added vaccination for pet_no = %d' % pet_no)
+                if first:
+                    first = False
+                    log.info('Comparing %s with %s (before normalization)' % (pet_docs[pet_no], full_path))
+                    log.info('Comparing %s with %s (after normalization)' %
+                             (pet_docs[pet_no].lower().replace('\\', '').replace('/', ''), full_path.lower().replace('\\', '').replace('/', '')))
         
         m = temp_patt.match(vacc_file)
         if m:
