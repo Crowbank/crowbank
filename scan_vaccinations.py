@@ -62,7 +62,6 @@ def main():
     replaced = 0
     scanned = 0
     missing = 0
-    first = True
 
     for vacc_file in dirs:
         m = patt.match(vacc_file)
@@ -72,7 +71,7 @@ def main():
             full_path = os.path.join(vacc_path, vacc_file)
 
             if not (pet_no in pet_docs and
-                            pet_docs[pet_no].lower().replace('\\', '').replace('/', '') == full_path.lower().replace('\\', '').replace('/', '')):
+                            strip_path(pet_docs[pet_no]) == strip_path(full_path)):
                 if pet_no in pet_docs:
                     replaced += 1
                     log.debug('Replacing path %s with %s', pet_docs[pet_no], full_path)
@@ -81,11 +80,6 @@ def main():
                 sql = 'Execute padd_vacc %d' % pet_no
                 env.execute(sql)
                 log.info('Added vaccination for pet_no = %d' % pet_no)
-                if first:
-                    first = False
-                    log.info('Comparing %s with %s (before normalization)' % (pet_docs[pet_no], full_path))
-                    log.info('Comparing %s with %s (after normalization)' %
-                             (strip_path(pet_docs[pet_no]), strip_path(full_path)))
         
         m = temp_patt.match(vacc_file)
         if m:
