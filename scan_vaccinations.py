@@ -12,6 +12,18 @@ env = Environment('scan_vaccinations')
 
 env.configure_logger(log)
 
+def strip_path(s):
+    import re
+    
+    m = re.match('.*\\([^\\]*)$', s)
+    if m:
+        return m.group(1)
+    m = re.match('.*/([^/]*)$', s)
+    if m:
+        return m.group(1)
+    return ''
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-path', action='store', help='Path to directory to be scanned')
@@ -73,7 +85,7 @@ def main():
                     first = False
                     log.info('Comparing %s with %s (before normalization)' % (pet_docs[pet_no], full_path))
                     log.info('Comparing %s with %s (after normalization)' %
-                             (pet_docs[pet_no].lower().replace('\\', '').replace('/', ''), full_path.lower().replace('\\', '').replace('/', '')))
+                             (strip_path(pet_docs[pet_no]), strip_path(full_path)))
         
         m = temp_patt.match(vacc_file)
         if m:
