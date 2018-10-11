@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="SqlDialectMappings">
-    <file url="dbSrc:///caa9ada/23e7ab3a-d5e0-419b-ad16-bb2a913ee015" dialect="TSQL" />
-    <file url="dbSrc:///caa9ada/a28ee413-c0b8-454f-96b4-d9980623b0ba" dialect="TSQL" />
-  </component>
-</project>
