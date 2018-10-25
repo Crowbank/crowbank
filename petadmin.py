@@ -21,7 +21,7 @@ ENVIRONMENT = getenv("DJANGO_ENVIRONMENT")
 if not ENVIRONMENT:
     ENVIRONMENT = 'prod'
 
-from settings import *
+from crowbank.settings import *
 
 TAG_RE = re.compile(r'<[^>]+>')
 

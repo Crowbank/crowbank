@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from __future__ import print_function
 from HTMLParser import HTMLParser
 import petadmin
 
@@ -143,6 +144,6 @@ f = open('booking.html')
 parser.feed(f.read())
 
 for (question, answer) in parser.answers:
-    print 'Question: ', question
-    print answer
+    print ('Question: ', question)
+    print (answer)
 

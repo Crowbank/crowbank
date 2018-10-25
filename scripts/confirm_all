@@ -1,1 +1,1 @@
-python /usr/lib/python2.7/site-packages/crowbank/confirm.py -all
+python /usr/lib/python/site-packages/crowbank/confirm.py -all

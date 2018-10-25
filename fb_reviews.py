@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from urllib2 import urlopen
+from urllib.request import urlopen
 from json import loads
 import pymssql
 import datetime
@@ -46,7 +46,7 @@ for review in data:
     reviewer_name = review['reviewer']['name'].encode('ascii', 'replace').replace("'", "''")
     sql = "insert into tblfb_review_staging (fbr_create_time, fbr_rating, fbr_text, fbr_id, fbr_name) values ("
     sql += "'%s', %d, '%s', '%s', '%s')" % (review['created_time'], review['rating'], review_text, review['reviewer']['id'], reviewer_name)
-    print sql
+    print (sql)
     cur.execute(sql)
 
 con.commit()

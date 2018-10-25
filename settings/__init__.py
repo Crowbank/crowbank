@@ -1,18 +1,18 @@
 import os
-from base import *
+from .base import *
 
 ENVIRONMENT = os.getenv("DJANGO_ENVIRONMENT")
 
 if ENVIRONMENT == "prod":
-    from prod import *
+    from .prod import *
 elif ENVIRONMENT == "qa":
-    from qa import *
+    from .qa import *
 elif ENVIRONMENT == "dev":
-    from dev import *
+    from .dev import *
 else:
-    from prod import *
+    from .prod import *
 
 try:
-    from local import *
+    from .local import *
 except ImportError:
     pass

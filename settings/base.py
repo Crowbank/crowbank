@@ -3,7 +3,7 @@ import sys
 EMAIL_HOST = 'cp165172.hpdns.net'
 # EMAIL_USER = 'confirmations@crowbank.co.uk'
 EMAIL_USER = 'info@crowbank.co.uk'
-EMAIL_PWD = 'Crowb@nk454!'
+EMAIL_PWD = 'Crowbank454!'
 
 # EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_USER = 'crowbank.partners@gmail.com'

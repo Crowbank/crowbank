@@ -6,11 +6,12 @@ from petadmin import PetAdmin, Environment, clean_html
 import argparse
 import webbrowser
 import decimal
-import urllib2
+from urllib.request import quote
 import logging
 import sys
 from os import getenv, path
 from settings import IMAGE_FOLDER, CONFIRMATIONS_FOLDER
+from base64 import b64encode
 
 log = logging.getLogger(__name__)
 
@@ -41,15 +42,15 @@ class ReportParameters:
     def read_images(self):
         with open(self.logo_file, "rb") as f:
             data = f.read()
-            self.logo_code = data.encode("base64")
+            self.logo_code = b64encode(data)
 
         with open(self.deluxe_logo_file, "rb") as f:
             data = f.read()
-            self.deluxe_logo_code = data.encode("base64")
+            self.deluxe_logo_code = b64encode(data)
 
         with open(self.pay_deposit_file, "rb") as f:
             data = f.read()
-            self.deposit_icon = data.encode("base64")
+            self.deposit_icon = b64encode(data)
 
     @staticmethod
     def get_deposit_url(bk_no, deposit_amount, pet_names, customer, expiry = 0):
@@ -60,18 +61,18 @@ class ReportParameters:
         url = "https://secure.worldpay.com/wcc/purchase?instId=1094566&cartId=PBL-%d&amount=%f&currency=GBP&" %\
               (bk_no, deposit_amount)
         url += 'desc=Deposit+for+Crowbank+booking+%%23%d+for+%s&accId1=CROWBANKPETBM1&testMode=0' %\
-               (bk_no, urllib2.quote(pet_names))
-        url += '&name=%s' % urllib2.quote(customer.display_name())
+               (bk_no, quote(pet_names))
+        url += '&name=%s' % quote(customer.display_name())
         if customer.email != '':
-            url += '&email=%s' % urllib2.quote(customer.email)
+            url += '&email=%s' % quote(customer.email)
         if customer.addr1 != '':
-            url += '&address1=%s' % urllib2.quote(customer.addr1)
+            url += '&address1=%s' % quote(customer.addr1)
         if customer.addr2 != '':
-            url += '&address2=%s' % urllib2.quote(customer.addr2)
+            url += '&address2=%s' % quote(customer.addr2)
         if customer.addr3 != '':
-            url += '&town=%s' % urllib2.quote(customer.addr3)
+            url += '&town=%s' % quote(customer.addr3)
         if customer.postcode != '':
-            url += '&postcode=%s' % urllib2.quote(customer.postcode)
+            url += '&postcode=%s' % quote(customer.postcode)
         url += '&country=UK'
         if expiry:
             url += '`%d' % timestamp
@@ -80,7 +81,7 @@ class ReportParameters:
             phone = customer.telno_home
             if len(phone) == 6:
                 phone = '01236 ' + phone
-            url += '&tel=%s' % urllib2.quote(phone)
+            url += '&tel=%s' % quote(phone)
 
         return url
 
@@ -235,7 +236,7 @@ class ConfirmationCandidate:
         else:
             mytemplate = Template(filename=report_parameters.report_txt)
 
-        self.paid = self.booking.paid_amt <> decimal.Decimal(0.00)
+        self.paid = self.booking.paid_amt != decimal.Decimal(0.00)
 
         body = mytemplate.render(today_date=today_date, conf=self, logo_code=report_parameters.logo_code,
                                  deposit_icon=report_parameters.deposit_icon,
@@ -282,7 +283,7 @@ class ConfirmationCandidate:
             webbrowser.open_new_tab(fout)
 
         if action == 'review':
-            response = raw_input("Email message [Y/N]? ")
+            response = input("Email message [Y/N]? ")
             send_email = (response.lower()[0] == 'y')
 
         if send_email:
@@ -579,7 +580,7 @@ for approval to send to customer""")
 
     env.close()
     if args.stay:
-        raw_input("Hit any key to close window")
+        input("Hit any key to close window")
 
 
 def test_url_expiry():

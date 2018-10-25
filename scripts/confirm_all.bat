@@ -1,1 +1,1 @@
-C:\cygwin64\bin\bash.exe --login /usr/lib/python2.7/site-packages/crowbank/scripts/confirm_all
+python "c:\Program Files\Python37\Lib\site-packages\crowbank\confirm.py" -all

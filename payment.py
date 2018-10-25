@@ -76,10 +76,10 @@ where bk_no = %d""" % args.booking
             args.date = (date.today()- timedelta(1)).strftime('%Y%m%d')
 
     msg = u'Processing %s deposit of %s%.2f for %s %s booking #%d' % (deposit_type_desc, pound, args.amount, pets, cust_surname, args.booking)
-    print msg
+    print (msg)
     if paid_amt <> 0.0:
         msg = u'Note - a previous payment of %s%.2f has already been credited to this booking!' % (pound, paid_amt)
-        print msg
+        print (msg)
     response = raw_input("Proceed? ")
     if response.lower()[0] == 'y':
         sql = "Execute ppayment %d, %f, '%s', '%s'" % (args.booking, args.amount, deposit_type, args.date)
