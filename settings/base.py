@@ -14,7 +14,7 @@ EMAIL_REPLYTO = 'info@crowbank.co.uk'
 
 if sys.platform == 'win32':
     IMAGE_FOLDER = 'C:\Program Files\Python37\Lib\Site-packages\crowbank\img'
-    CONFIRMATIONS_FOLDER = 'D:\Dropbox\Kennels\Confirmations'
+    CONFIRMATIONS_FOLDER = 'K:\Confirmations'
     VACC_FOLDER = 'K:\Vaccinations'
 else:
     IMAGE_FOLDER = '/usr/lib/python3.7/site-packages/crowbank/img'
