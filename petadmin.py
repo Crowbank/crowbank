@@ -39,7 +39,7 @@ class DatabaseHandler(logging.Handler):
         levelname = record.levelname
         filename = record.filename
         lineno = record.lineno
-        sql = "Execute plog '%s', '%s', '%s', %d, '%s', '%s', %d" % (msg, levelname, self.env.context, self.env.key,
+        sql = "Execute plog '%s', '%s', '%s', %d, '%s', '%s', %d" % (msg.replace("'", "''"), levelname, self.env.context, self.env.key,
                                                                      self.env.key_type, filename, lineno)
 
         self.env.execute(sql)
@@ -171,7 +171,7 @@ class Environment:
             if commit:
                 conn.commit()
         except Exception as e:
-            log.error('Error executing %s: %s', sql, e.message)
+            log.error('Error executing %s: %s', sql, e)
 
     def send_email(self, send_to, send_body, send_subject, alt_body, force_send=False):
         msg = MIMEMultipart('alternative')

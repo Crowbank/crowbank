@@ -29,7 +29,7 @@ usage () {
 
 error_exit () {
     echo "$1" 1>&2
-    plog $1 'ERROR'
+    plog "$1" 'ERROR'
     exit 1
 }
 

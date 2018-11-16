@@ -172,9 +172,9 @@ class ConfirmationCandidate:
                 log.debug('Booking with no-deposit customer - no deposit')
                 self.deposit = False
 
-            if self.deposit and self.booking.peak == 0:
-                log.debug('Booking during off-peak - no deposit')
-                self.deposit = False
+#             if self.deposit and self.booking.peak == 0:
+#                 log.debug('Booking during off-peak - no deposit')
+#                 self.deposit = False
 
             if self.deposit and self.payment_amount != decimal.Decimal("0.00"):
                 log.debug('Booking associated with payment event - no deposit')
