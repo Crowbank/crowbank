@@ -1,35 +1,21 @@
-import datetime
-import webbrowser
-from mako.template import Template
-from petadmin import PetAdmin, MailInterface
+class User:
+    def __init__(self, name, email):
+        self._name = name
+        self._email = email
 
+    def get_name(self):
+        return self._name
 
-with open("C:\Users\Fiona\Dropbox\Marketing\Logo\Letterhead Banner.png", "rb") as f:
-    data = f.read()
-    logo_code = data.encode("base64")
+    def get_email(self):
+        return self._email
 
-mi = MailInterface()
-pa = PetAdmin()
-pa.load()
-bk = pa.bookings.get(2979)
+    def do_something(self):
+        print("Hi from " + str(self))
 
-if 0:
-    today_date = datetime.date.today()
-    d = 'C:\\Users\\Fiona\\Dropbox\\python\\petadmin\\'
-    infile = 'Confirmation'
-    mytemplate = Template(filename=d + infile + '.html')
-    outfile = d + infile + '-out.html'
-    f = open(outfile, 'w')
-    f.write(mytemplate.render(today_date=today_date, bk=bk, logo_code=logo_code))
-    f.close()
-    webbrowser.open_new_tab(outfile)
+    def __str__(self):
+        return self._name + ', ' + self._email
 
-if 1:
-    today_date = datetime.date.today()
-    d = "C:\Users\Fiona\Dropbox\python\petadmin\\"
-    infile = 'Conf-mail'
-    mytemplate = Template(filename=d + infile + '.html')
-    body = mytemplate.render(today_date=today_date, bk=bk, logo_code=logo_code)
-    to = 'crowbank.partners@gmail.com'
-    subject = 'Crowbank Confirmation, booking #%d' % bk.no
-    mi.send(to, body, subject)
+users = [ User("TestUser", "testmail@mail.com"), User("User2", "email2@mail.com")]
+
+for user in users:
+    user.do_something()

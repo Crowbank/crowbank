@@ -191,7 +191,9 @@ class ConfirmationCandidate:
                     if pet.spec == 'Dog':
                         self.deposit_amount = decimal.Decimal("50.00")
                 if self.deposit_amount > self.booking.gross_amt / 2:
-                    self.deposit_amount = decimal.Decimal(self.booking.gross_amt) / 2
+                    self.deposit_amount = decimal.Decimal(round(self.booking.gross_amt, 1) / 2)
+                    # Round down to nearest 0.05
+                    
 
             if not report_parameters:
                 report_parameters = ReportParameters()
@@ -356,8 +358,15 @@ def confirm_all(petadmin, report_parameters, action, asofdate=None, audit_start=
     conf_time = datetime.datetime.now()
 
     cursor = env.get_cursor()
-# start by reading all past emails sent, to safeguard against double-sending
-
+    
+# start by adding booking fees as necessary
+    sql = 'Execute padd_booking_fee_new'
+    env.execute(sql)
+    
+    petadmin.load()
+    
+# next read all past emails sent, to safeguard against double-sending
+    
     sql = """select hist_bk_no, hist_date, hist_destination, hist_subject from vwhistory2
         where hist_report = 'Conf-mail' and hist_type = 'Email Client'"""
     try:
@@ -548,7 +557,6 @@ for approval to send to customer""")
     rp.read_images()
 
     pa = PetAdmin(env)
-    pa.load()
 
     audit_start = 0
     if args.audit_start:
@@ -571,10 +579,12 @@ for approval to send to customer""")
 #                                  args.report, logo_code, deposit_icon, args.test)
     else:
         if args.last:
+            pa.load()
             bk_no = max(pa.bookings.bookings.keys())
             process_booking(bk_no, args, pa, action, rp, additional_text, forced_subject)
         else:
             if args.booking:
+                pa.load()
                 for bk_no in args.booking:
                     process_booking(bk_no, args, pa, action, rp, additional_text, forced_subject)
 

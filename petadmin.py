@@ -25,7 +25,7 @@ from crowbank.settings import *
 
 TAG_RE = re.compile(r'<[^>]+>')
 
-def clean_html(html_text):
+def clean_html(html_text: str) -> str:
     return TAG_RE.sub('', html_text)
 
 
@@ -39,8 +39,10 @@ class DatabaseHandler(logging.Handler):
         levelname = record.levelname
         filename = record.filename
         lineno = record.lineno
-        sql = "Execute plog '%s', '%s', '%s', %d, '%s', '%s', %d" % (msg.replace("'", "''"), levelname, self.env.context, self.env.key,
-                                                                     self.env.key_type, filename, lineno)
+        sql = f"""
+Execute plog '{msg.replace("'", "''")}', '{level_name}', '{self.env.context}',
+{self.env.key}, '{self.env.key_type}',
+'{filename}', {lineno})"""
 
         self.env.execute(sql)
 
@@ -54,7 +56,8 @@ class BufferingSMTPHandler(logging.handlers.BufferingHandler):
         self.fromaddr = env.email_user
         self.toaddrs = env.email_logs
         self.subject = 'Python Log'
-        self.setFormatter(logging.Formatter("%(asctime)s %(levelname)-7s %(message)s"))
+        self.setFormatter(logging.Formatter(
+            "%(asctime)s %(levelname)-7s %(message)s"))
 
     def flush(self):
         if len(self.buffer) > 0:
@@ -118,7 +121,8 @@ class Environment:
 
     def configure_logger(self, logger):
         log_file = LOG_FILE
-        file_handler = logging.handlers.TimedRotatingFileHandler(log_file, when='W0')
+        file_handler = logging.handlers.TimedRotatingFileHandler(
+            log_file, when='W0')
         
         debug = (self.env_type in ('qa', 'dev'))
 
@@ -130,7 +134,8 @@ class Environment:
             except Exception:
                 logger.error('Unable to connect to smtp server')
 
-        formatter = logging.Formatter('%(asctime)s  [%(levelname)-5s] %(message)s')
+        formatter = logging.Formatter(
+            '%(asctime)s  [%(levelname)-5s] %(message)s')
         file_handler.setFormatter(formatter)
         stream_handler.setFormatter(formatter)
         self.smtp_handler.setFormatter(formatter)
@@ -152,9 +157,15 @@ class Environment:
     def get_connection(self):
         if not self.connection:
             if self.platform == 'win32':
-                self.connection = pymssql.connect(server=DB_SERVER, user=DB_USER, password=DB_PWD, database=DB_DATABASE)
+                self.connection = pymssql.connect(
+                    server=DB_SERVER, user=DB_USER, password=DB_PWD,
+                    database=DB_DATABASE)
             else:
-                self.connection = pyodbc.connect('DRIVER={SQL SERVER};SERVER=%s;DATABASE=%s;UID=%s;PWD=%s' % (DB_SERVER, DB_DATABASE, DB_USER, DB_PWD))
+                driver = 'SQL SERVER'
+                self.connection = pyodbc.connect(
+f"""DRIVER={driver};SERVER={DB_SERVER};DATABASE={DB_DATABASE};
+UID={DB_USER};PWD={DB_PWD}"""
+                    )
 
         return self.connection
 
@@ -171,20 +182,23 @@ class Environment:
             if commit:
                 conn.commit()
         except Exception as e:
-            log.error('Error executing %s: %s', sql, e)
+            log.error(f'Error executing {sql}: {e}')
 
-    def send_email(self, send_to, send_body, send_subject, alt_body, force_send=False):
+    def send_email(
+        self, send_to, send_body, send_subject, alt_body, force_send=False
+    ):
         msg = MIMEMultipart('alternative')
 
         if self.env_type != "prod":
-            send_subject += ' (%s)' % ENVIRONMENT
+            send_subject += f' ({ENVIRONMENT})'
             send_to = self.email_bcc
 
         msg['Subject'] = send_subject
         msg['From'] = self.email_user
         msg['To'] = send_to
         msg['Date'] = formatdate(localtime=True)
-        msg['Message-Id'] = '%s@crowbank.co.uk' % datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        msg['Message-Id'] = f'{timestamp}@crowbank.co.uk'
 
         part1 = MIMEText(alt_body, 'plain')
         part2 = MIMEText(send_body, 'html')
@@ -201,15 +215,17 @@ class Environment:
             server.sendmail(self.email_user, [send_to], msg.as_string())
 
     def send_email_old(self, send_to, send_body, send_subject, force_send=False):
-#        target = [send_to, self.email_bcc]
         target = [send_to]
         if ENVIRONMENT != "prod":
-            send_subject += ' (%s)' % ENVIRONMENT
+            send_subject += f' ({ENVIRONMENT})'
             target = [self.email_bcc]
-        msg = 'To:%s\nMIME-Version: 1.0\nContent-type: text/html\nFrom: Crowbank Kennels and Cattery <%s>\nSubject:%s\n\n%s' % \
-              (send_to, self.email_user, send_subject, send_body)
-        #        msg = 'To:' + send_to + '\nMIME-Version: 1.0\nContent-type: text/html\nFrom: Crowbank Kennels and Cattery <'\
-        #              + self.email_user + '>\n' + 'Subject:' + send_subject + '\n\n' + send_body
+        msg = f"""
+To:{send_to}\nMIME-Version: 1.0\nContent-type: text/html\n
+From: Crowbank Kennels and Cattery <{self.email_user}>\n
+Subject:{send_subject}\n
+\n
+{send_body}"""
+
         try:
             server = self.get_smtp_server()
             server.sendmail(self.email_user, target, msg)
@@ -248,6 +264,16 @@ class PetAdmin:
 
         self.loaded = True
         log.debug('Loading PetAdmin Complete')
+    
+    def load_customer(self, cust_no):
+        if self.loaded:
+            return
+        
+        log.debug(f'Loading customer #{cust_no}')
+        self.services.load()
+        self.customers.load_one(cust_no)
+        self.pets.load_for_customer(cust_no)
+        self.bookings.load_for_customer(cust_no)
 
 
 class Customers:
@@ -262,17 +288,9 @@ class Customers:
         else:
             return None
 
-    def load(self, force=False):
-        if self.loaded and not force:
-            return
-
-        log.debug('Loading Customers')
-
+    def load_by_sql(self, sql):
         cursor = self.env.get_cursor()
 
-        sql = """Select cust_no, cust_surname, cust_forename, cust_addr1, cust_addr2, cust_addr3, cust_postcode,
-        cust_telno_home, cust_email, cust_discount, cust_telno_mobile, cust_title, cust_nodeposit,
-        cust_deposit_requested, cust_nosms from vwcustomer"""
         cursor.execute(sql)
         for row in cursor:
             cust_no = row[0]
@@ -294,8 +312,38 @@ class Customers:
 
             self.customers[cust_no] = customer
 
-        log.debug('Loaded %d customers', len(self.customers))
+    def load(self, force=False):
+        if self.loaded and not force:
+            return
+
+        log.debug('Loading Customers')
+
+        sql = """
+Select cust_no, cust_surname, cust_forename, cust_addr1, cust_addr2,
+cust_addr3, cust_postcode, cust_telno_home, cust_email, cust_discount,
+cust_telno_mobile, cust_title, cust_nodeposit, cust_deposit_requested,
+cust_nosms from vwcustomer"""
+
+        self.load_by_sql(sql)
+
+        log.debug(f'Loaded {len(self.customers)} customers')
         self.loaded = True
+
+    def load_one(self, cust_no):
+        if self.loaded or cust_no in self.customers:
+            return
+        
+        log.debug(f'Loading customer #{cust_no}')
+
+        sql = f"""
+Select cust_no, cust_surname, cust_forename, cust_addr1, cust_addr2, cust_addr3,
+cust_postcode, cust_telno_home, cust_email, cust_discount, cust_telno_mobile,
+cust_title, cust_nodeposit, cust_deposit_requested, cust_nosms
+from vwcustomer where cust_no = {cust_no}"""
+
+        self.load_by_sql(sql)
+
+        log.debug(f'Loaded customer {cust_no}')
 
 
 class Customer:
@@ -350,9 +398,10 @@ class Customer:
         return full_address
 
     def write(self, env):
-        sql = """execute pcreate_customer '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'""" % (
-            self.surname, self.forename, self.addr1, self.addr3, self.postcode, self.telno_home, self.telno_mobile,
-            self.email, self.notes)
+        sql = f"""execute pcreate_customer '{self.surname}', '{self.forename}',
+            '{self.addr1}', '{self.addr3}', '{self.postcode}',
+            '{self.telno_home}', '{self.telno_mobile}', '{self.email}',
+            '{self.notes}"""
 
         env.execute(sql)
 
@@ -421,6 +470,55 @@ class Pets:
         else:
             return None
 
+    def load_by_sql(self, sql):
+        cursor = self.env.get_cursor()
+
+        cursor.execute(sql)
+        for row in cursor:
+            pet_no = row[0]
+            pet = Pet(pet_no)
+            cust_no = row[1]
+            if self.customers is not None:
+                customer = self.customers.get(cust_no)
+                if not customer:
+                    log.error(f'Missing customer for pet #{pet_no}')
+                    next()
+                pet.customer = customer
+                customer.add_pet(pet)
+            pet.name = row[2]
+            breed_no = row[3]
+            if self.breeds is not None:
+                breed = self.breeds.get(breed_no)
+                if not breed:
+                    log.error(f'Missing breed for pet #{pet_no}')
+                    next()
+            pet.breed = breed
+            pet.spec = row[4]
+            pet.dob = row[5]
+            pet.sex = row[6]
+            pet.vacc_status = row[7]
+            self.pets[pet_no] = pet
+
+    def load_for_customer(self, cust_no):
+        if self.loaded:
+            return
+
+        log.debug(f'Loading Pets for customer #{cust_no}')
+
+        if self.customers is not None and cust_no not in self.customers.customers:
+            self.customers.load_one(cust_no)
+        if self.breeds is not None:
+            self.breeds.load()
+
+        sql = f"""
+select pet_no, cust_no, pet_name, breed_no, spec_desc, pet_dob, pet_sex,
+pet_vacc_status from vwpet where cust_no = {cust_no}"""
+        self.load_by_sql(sql)
+
+        log.debug('Loaded %d pets', len(self.pets))
+        self.loaded = True
+        
+
     def load(self, force=False):
         if self.loaded and not force:
             return
@@ -431,36 +529,11 @@ class Pets:
         if self.breeds is not None:
             self.breeds.load()
 
-        cursor = self.env.get_cursor()
-        sql = 'select pet_no, cust_no, pet_name, breed_no, spec_desc, pet_dob, pet_sex, pet_vacc_status from vwpet'
+        sql = """select pet_no, cust_no, pet_name, breed_no, spec_desc, pet_dob,
+pet_sex, pet_vacc_status from vwpet"""
+        self.load_by_sql(sql)
 
-        cursor.execute(sql)
-        for row in cursor:
-            pet_no = row[0]
-            pet = Pet(pet_no)
-            cust_no = row[1]
-            if self.customers is not None:
-                customer = self.customers.get(cust_no)
-                if not customer:
-                    log.error('Missing customer for pet #%d', pet_no)
-                    next()
-                pet.customer = customer
-                customer.add_pet(pet)
-            pet.name = row[2]
-            breed_no = row[3]
-            if self.breeds is not None:
-                breed = self.breeds.get(breed_no)
-                if not breed:
-                    log.error('Missing breed for pet #%d', pet_no)
-                    next()
-            pet.breed = breed
-            pet.spec = row[4]
-            pet.dob = row[5]
-            pet.sex = row[6]
-            pet.vacc_status = row[7]
-            self.pets[pet_no] = pet
-
-        log.debug('Loaded %d pets', len(self.pets))
+        log.debug(f'Loaded {len(self.pets)} pets')
         self.loaded = True
 
 
@@ -545,15 +618,10 @@ class Bookings:
         
         return []
         
-    def load(self, force=False):
-        if self.loaded and not force:
-            return
-
-        log.debug('Loading Bookings')
-        sql = """Select bk_no, bk_cust_no, bk_create_date, bk_start_datetime, bk_end_datetime,
-        bk_gross_amt, bk_paid_amt, bk_status, bk_peak, bk_deluxe, bk_skip_confirm, bk_pickup_no from vwbooking"""
+    def load_by_sql(self, sql_booking, sql_bookingitem, sql_invitem,
+            sql_invextra, sql_payment):
         cursor = self.env.get_cursor()
-        cursor.execute(sql)
+        cursor.execute(sql_booking)
 
         for row in cursor:
             bk_no = row[0]
@@ -578,8 +646,7 @@ class Bookings:
                 else:
                     self.by_start_date[sdate] = [booking]
 
-        sql = 'Select bi_bk_no, bi_pet_no from vwbookingitem_simple'
-        cursor.execute(sql)
+        cursor.execute(sql_bookingitem)
 
         for row in cursor:
             booking = self.get(row[0])
@@ -589,8 +656,7 @@ class Bookings:
             else:
                 booking.pets.append(pet)
 
-        sql = 'Select ii_bk_no, ii_pet_no, ii_srv_no, ii_quantity, ii_rate from vwinvitem'
-        cursor.execute(sql)
+        cursor.execute(sql_invitem)
 
         for row in cursor:
             booking = self.get(row[0])
@@ -600,8 +666,7 @@ class Bookings:
                 inv_item = InventoryItem(pet, service, row[3], row[4])
                 booking.inv_items.append(inv_item)
 
-        sql = 'Select ie_bk_no, ie_desc, ie_unit_price, ie_quantity from vwinvextra'
-        cursor.execute(sql)
+        cursor.execute(sql_invextra)
 
         for row in cursor:
             booking = self.get(row[0])
@@ -612,8 +677,7 @@ class Bookings:
                 extra_item = ExtraItem(desc, unit_price, quantity)
                 booking.extra_items.append(extra_item)
 
-        sql = 'Select pay_bk_no, pay_date, pay_amount, pay_type from vwpayment_simple'
-        cursor.execute(sql)
+        cursor.execute(sql_payment)
 
         for row in cursor:
             booking = self.get(row[0])
@@ -623,7 +687,62 @@ class Bookings:
             payment = Payment(pay_date, amount, pay_type)
             booking.payments.append(payment)
 
-        log.debug('Loaded %d bookings', len(self.bookings))
+
+    def load(self, force=False):
+        if self.loaded and not force:
+            return
+
+        log.debug('Loading Bookings')
+
+        sql_booking = """
+Select bk_no, bk_cust_no, bk_create_date, bk_start_datetime, bk_end_datetime,
+bk_gross_amt, bk_paid_amt, bk_status, bk_peak, bk_deluxe, bk_skip_confirm,
+bk_pickup_no from vwbooking"""
+        sql_bookingitem = """
+Select bi_bk_no, bi_pet_no from vwbookingitem_simple"""
+        sql_invitem = """
+Select ii_bk_no, ii_pet_no, ii_srv_no, ii_quantity, ii_rate from vwinvitem"""
+        sql_invextra = """
+Select ie_bk_no, ie_desc, ie_unit_price, ie_quantity from vwinvextra"""
+        sql_payment = """
+Select pay_bk_no, pay_date, pay_amount, pay_type from vwpayment_simple"""
+
+        self.load_by_sql(sql_booking, sql_bookingitem, sql_invitem, sql_invextra,
+            sql_payment)
+
+        log.debug(f'Loaded {len(self.bookings)} bookings')
+        self.loaded = True
+
+
+    def load_for_customer(self, cust_no):
+        if self.loaded:
+            return
+
+        log.debug(f'Loading Bookings for customer #{cust_no}')
+        sql_booking = f"""
+Select bk_no, bk_cust_no, bk_create_date, bk_start_datetime, bk_end_datetime,
+bk_gross_amt, bk_paid_amt, bk_status, bk_peak, bk_deluxe, bk_skip_confirm,
+bk_pickup_no from vwbooking
+where bk_cust_no = {cust_no}"""
+        sql_bookingitem = f"""
+Select bi_bk_no, bi_pet_no
+from vwbookingitem_simple
+where bi_cust_no = {cust_no}"""
+        sql_invitem = f"""
+Select ii_bk_no, ii_pet_no, ii_srv_no, ii_quantity, ii_rate
+from vwinvitem where ii_cust_no = {cust_no}"""
+        sql_invextra = f"""
+Select ie_bk_no, ie_desc, ie_unit_price, ie_quantity
+from vwinvextra
+where ie_cust_no = {cust_no}"""
+        sql_payment = f"""
+Select pay_bk_no, pay_date, pay_amount, pay_type
+from vwpayment_simple where pay_cust_no = {cust_no}"""
+
+        self.load_by_sql(sql_booking, sql_bookingitem, sql_invitem, sql_invextra,
+            sql_payment)
+
+        log.debug(f'Loaded bookings for customer #{cust_no}')
         self.loaded = True
 
 
@@ -673,7 +792,8 @@ class Booking:
     def pet_names(self):
         if len(self.pets) == 1:
             return self.pets[0].name
-        return ', '.join(map(lambda p: p.name, self.pets[0:-1])) + ' and ' + self.pets[-1].name
+        return ', '.join(map(lambda p: p.name, self.pets[0:-1])) + \
+            ' and ' + self.pets[-1].name
 
     def add_payment(self, payment):
         self.payments.append(payment)
@@ -698,7 +818,7 @@ class Runs:
         self.min_date = datetime.date(2099, 12, 31)
         self.max_date = datetime.date(1970, 1, 1)
         self.loaded = False
-
+        
     def load(self, force=False):
         if self.loaded and not force:
             return
@@ -725,7 +845,8 @@ class Runs:
                 self.potential_vacancies[(run.spec, run.type)] = 0
             self.potential_vacancies[(run.spec, run.type)] += 1
 
-        sql = """select ro_run_no, ro_pet_no, ro_date, ro_bk_no, ro_type from vwrunoccupancy"""
+        sql = """
+select ro_run_no, ro_pet_no, ro_date, ro_bk_no, ro_type from vwrunoccupancy"""
         cursor.execute(sql)
 
         for row in cursor:
@@ -746,7 +867,8 @@ class Runs:
             self.vacancies[ro_date] = {}
             for spec in self.runs_by_type.keys():
                 for run_type in self.runs_by_type[spec].keys():
-                    self.vacancies[ro_date][(spec, run_type)] = self.potential_vacancies[(spec, run_type)]
+                    self.vacancies[ro_date][(spec, run_type)] = \
+                        self.potential_vacancies[(spec, run_type)]
                     for run in self.runs_by_type[spec][run_type]:
                         if ro_date in run.occupancy:
                             self.vacancies[ro_date][(spec, run_type)] -= 1
@@ -757,12 +879,15 @@ class Runs:
     def check_availability(self, from_date, to_date, spec, run_type, run_count=1):
         """
         Check to see whether we have availability in a given type of run.
-        A run is considered available only if no pet is assigned to each at any time during the day.
-        Thus the test may fail while there is still room to accommodate leavers and arrivers in the same run
+        A run is considered available only if no pet is assigned to each at
+        any time during the day.
+        Thus the test may fail while there is still room to accommodate leavers
+        and arrivers in the same run
         :param from_date:   first date to be checked, typically bk_start_date
         :param to_date:     last date to be checked, typically bk_end_date
         :param spec:        species, 'Cat' or 'Dog'
-        :param run_type:    run type, e.g. 'standard', 'double' or 'deluxe' for dogs
+        :param run_type:    run type, e.g. 'standard', 'double' or 'deluxe'
+                            for dogs
         :param run_count: Number of runs required (default to 1)
         :return:
         """
@@ -776,13 +901,18 @@ class Runs:
 
         return True
 
-    def allocate_booking(self, booking, run_type=None, pets=None, start_date=None, stay_length=0):
+    def allocate_booking(self, booking, run_type=None, pets=None, start_date=None,
+        stay_length=0):
         """
         :param booking: booking to be allocated into runs
-        :param run_type: type of run to be used for dogs. All cats are assumed to use standard run.
-        :param pets: a list of pets to be allocated. if None, all pets of each spec are co-habiting
-        :param start_date: first date to be allocated. defaults to booking.start_date
-        :param stay_length: number of days to be allocated. defaults to length of booking
+        :param run_type: type of run to be used for dogs.
+            All cats are assumed to use standard run.
+        :param pets: a list of pets to be allocated.
+            If None, all pets of each spec are co-habiting
+        :param start_date: first date to be allocated.
+            defaults to booking.start_date
+        :param stay_length: number of days to be allocated.
+            defaults to length of booking
         :return: True for success, False for failure
         """
 
@@ -807,10 +937,12 @@ class Runs:
                           key=lambda r: r.free_length(start_date, stay_length))
 
                 move_list = []
-                run.add_occupancy_range(booking, spec_pets, booking.start_date, stay_length, move_list)
+                run.add_occupancy_range(booking, spec_pets, booking.start_date,
+                    stay_length, move_list)
                 while move_list:
                     to_move = move_list.pop(0)
-                    self.allocate_booking(to_move[0][0], run.run_type, to_move[0][1], to_move[1], to_move[2])
+                    self.allocate_booking(to_move[0][0], run.run_type,
+                        to_move[0][1], to_move[1], to_move[2])
 
 
 class Run:
@@ -849,8 +981,9 @@ class Run:
     def same_length(self, current_date, bk_no):
         current_set = self.occupancy[current_date][bk_no]
         i = 1
-        while bk_no in self.occupancy[current_date + datetime.timedelta(days=i)] and\
-                self.occupancy[current_date + datetime.timedelta(days=i)][1] == current_set[1]:
+        while bk_no in self.occupancy[current_date + datetime.timedelta(days=i)]\
+             and self.occupancy[current_date + datetime.timedelta(days=i)][1] ==\
+              current_set[1]:
             i += 1
 
         return i
@@ -865,7 +998,8 @@ class Run:
             if current_date in self.occupancy:
                 for bk_no in self.occupancy[current_date]:
                     stay_length = self.same_length(current_date, bk_no)
-                    reject_list.append((self.occupancy[current_date], current_date, stay_length))
+                    reject_list.append((self.occupancy[current_date], \
+                    current_date, stay_length))
                     self.clear_run(current_date, bk_no, stay_length)
             for pet in pets:
                 self.add_occupancy(booking, pet, current_date)
