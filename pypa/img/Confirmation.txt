@@ -1,0 +1,137 @@
+Crowbank Kennels and Cattery
+
+Crowbank Pet Boarding
+Crowbank House, Arns
+Cumbernauld G67 3JW
+United Kingdom
+
+${conf.booking.customer.display_name()}
+% if conf.booking.customer.addr1 != '':
+${conf.booking.customer.addr1}
+% endif
+% if conf.booking.customer.addr2 != '':
+${conf.booking.customer.addr2}
+% endif
+% if conf.booking.customer.addr3 != '':
+${conf.booking.customer.addr3}
+% endif
+% if conf.booking.customer.postcode != '':
+${conf.booking.customer.postcode}
+% endif
+United Kingdom
+
+Tel: 01236 729454
+www.crowbank.co.uk
+info@crowbank.co.uk
+
+${conf.clean_additional_text}
+
+${conf.title}
+% if conf.booking.status == 'P':
+We have received your inquiry regarding booking ${conf.pet_names} between ${conf.booking.start_date.strftime("%a %d %b %Y %H:%M")} and ${conf.booking.end_date.strftime("%a %d %b %Y %H:%M")}.
+
+At the moment, we have availability for those dates at a total cost of ${"{0:.2f}".format(conf.booking.gross_amt)}.
+
+If you would like us to make the booking, please pay a deposit of ${"{0:.2f}".format(conf.deposit_amount)} by pasting the following to your browser: ${deposit_url}.
+
+Alternatively, call us at 01236 729454 to pay over the phone.
+
+Note we cannot guarantee availability until we receive your deposit. Once we receive your deposit, we will send you an email confirmation.
+
+
+By paying your deposit you agree in full to our boarding Terms and Conditions (available on our website) including those regarding vaccinations.
+
+All pets must have a full set of up-to-date vaccinations. All dogs must also have a current annual Kennel Cough vaccination.
+Kennel Cough vaccine must be administered <strong>at least 7 days prior to boarding. Ask your vet to be sure!
+
+We only accept and discharge guests during our opening hours:
+
+Mon-Sat 10:00-12:30 and 14:00-17:30
+Sun 10:00-13:00
+
+
+
+
+
+*Deposits are refundable up to 7 days after payment. Please contact us via email to info@crowbank.co.uk to cancel your booking
+and your deposit will be refunded in full. After 7 days, deposits are non-refundable.
+
+% else:
+Booking No: ${conf.booking.no}
+
+Arriving: ${conf.booking.start_date.strftime("%a %d %b %Y %H:%M")}
+Leaving: ${conf.booking.end_date.strftime("%a %d %b %Y %H:%M")}
+% if not conf.cancelled:
+Total Amount: ${"{0:.2f}".format(conf.booking.gross_amt)}
+% endif
+Paid: ${"{0:.2f}".format(conf.booking.paid_amt)}
+% if not conf.cancelled:
+Outstanding: ${"{0:.2f}".format(conf.booking.outstanding_amt())}
+% endif
+
+Guests
+% for pet in conf.booking.pets:
+${pet.name} (${pet.breed}) [${pet.spec}]
+% endfor
+
+% if conf.cancelled:
+Your booking has been cancelled.
+% if conf.paid:
+As laid out in our Terms and Conditions, your deposit of ${"{0:.2f}".format(conf.booking.paid_amt)} is non-refundable.
+% endif
+ We're sorry to see you go, but we hope you'll be back soon!
+
+
+% else:
+% if conf.deposit:
+% if conf.amended:
+Your provisional booking has been amended! Please check the information above to ensure the information is correct.
+% else:
+This is a provisional booking.
+% endif
+Please check the information above to ensure the details are correct.
+To secure the booking, please pay a non-refundable* deposit of ${"{0:.2f}".format(conf.deposit_amount)} (plus a 1.20 transaction fee).
+
+We may cancel or resell the booking if the deposit is not paid within 7 days.
+
+
+Paste the following url to your browser to pay: ${deposit_url}
+
+By paying your deposit you agree in full to our boarding Terms and Conditions (available on our website)
+including those regarding vaccinations.
+
+% else:
+% if conf.payment:
+Your payment of ${"{0:.2f}".format(conf.payment_amount)} has been received, and your booking has been confirmed.
+% elif conf.amended:
+Your booking has been amended.
+% else:
+Your booking has been confirmed.
+% endif
+Please check the information above to ensure the details are correct.
+Thank you and we'll see you on ${conf.booking.start_date.strftime("%a %d %b")}!
+
+
+By making this booking you agree in full to our boarding Terms and Conditions including those regarding vaccinations.
+% endif
+
+
+
+All pets must have a full set of up-to-date vaccinations. All dogs must also have a current annual Kennel Cough vaccination.
+Kennel Cough vaccine must be administered <strong>at least 7 days prior to boarding. Ask your vet to be sure!
+
+We only accept and discharge guests during our opening hours:
+% endif
+Mon-Sat 10:00-12:30 and 14:00-17:30
+Sun 10:00-13:00
+
+
+% if conf.deposit and not conf.cancelled:
+*Deposits are refundable up to 7 days after payment. Please contact us via email to info@crowbank.co.uk to cancel your booking
+and your deposit will be refunded in full. After 7 days, deposits are non-refundable.
+% endif
+% endif
+
+All bookings are subject to Crowbank Pet Boarding's Terms and Conditions
+
+This email has been automatically generated. If you have received this email in error, or if the details are incorrect, please reply and we will address any concerns you may have. Thank you!

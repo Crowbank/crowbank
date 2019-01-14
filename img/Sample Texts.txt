@@ -1,9 +1,0 @@
-Sample Texts
-1.	Unfortunately, we do not currently have availability for the dates you requested. 
-2.	We do have availability for the dates you requested. The total cost of your booking will be £XXX. If you want to go ahead with the booking, please fill our online booking form at www.crowbank.co.uk/booking or call us at 01236 729454
-3.	We do have availability for the dates you requested. The total cost of the stay will be £XXX. We will require a deposit of £50 to make the booking. Please look out for an automated deposit request sent to your email. If you have not received one, or would rather pay over the phone, please contact us at 01236 729454.
-Note: during busy periods we cannot guarantee continued availability until a deposit is received.
-4.	Dear <Name>, we have received your inquiry regarding booking <Pets> between <Start Date> and <End Date>. At the moment, we have availability for those dates at a total cost of £<Cost>. If you would like us to make the booking, please pay a deposit of £<Deposit Amount> by using <This Link> or call us at 01236 729454 to pay over the phone.
-Note we cannot guarantee availability until we receive your deposit.
-Once we receive your deposit, we will send you an email confirmation.
-5.	Dear <Name>, we are happy to confirm your booking for <Pets> between <Start Date> and <End Date>. <We received your deposit of £<Deposit Amount>>. The balance of £<Balance> is due at the end of the booking.

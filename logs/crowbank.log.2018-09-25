@@ -1,3 +1,0 @@
-2018-10-02 00:00:06,040  [INFO ] Running confirm with ENVIRONMENT=prod
-2018-10-02 00:00:06,105  [INFO ] Running /usr/lib/python2.7/site-packages/crowbank/confirm.py -all
-2018-10-02 00:00:08,709  [INFO ] Confirming 0 candidates
