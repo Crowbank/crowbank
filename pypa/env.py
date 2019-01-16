@@ -1,8 +1,7 @@
 import sys
-if sys.platform == 'win32':
-    import pymssql
-if sys.platform == 'cygwin':
-    import pyodbc
+import pymssql
+# if sys.platform == 'cygwin':
+#     import pyodbc
 import smtplib
 import logging
 import logging.handlers
@@ -13,6 +12,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
 from datetime import datetime
+from .settings import get_settings
+
+assert(sys.platform == 'win32')
 
 log = logging.getLogger(__name__)
 
@@ -20,11 +22,9 @@ ENVIRONMENT = getenv("DJANGO_ENVIRONMENT")
 if not ENVIRONMENT:
     ENVIRONMENT = 'prod'
 
-from .settings import EMAIL_HOST, EMAIL_USER, EMAIL_PWD, EMAIL_BCC, EMAIL_LOGS,\
-    EMAIL_REPLYTO, CROWBANK_ADDRESSES, LOG_FILE, DB_SERVER, DB_USER, DB_PWD,\
-    DB_DATABASE
 
 TAG_RE = re.compile(r'<[^>]+>')
+
 
 def clean_html(html_text: str) -> str:
     return TAG_RE.sub('', html_text)
@@ -43,7 +43,7 @@ class DatabaseHandler(logging.Handler):
         sql = f"""
 Execute plog '{msg.replace("'", "''")}', '{levelname}', '{self.env.context}',
 {self.env.key}, '{self.env.key_type}',
-'{filename}', {lineno})"""
+'{filename}', {lineno}"""
 
         self.env.execute(sql)
 
@@ -68,37 +68,45 @@ class BufferingSMTPHandler(logging.handlers.BufferingHandler):
                     s = self.format(record)
                     body += s + "<br/>"
 
-                self.env.send_email(self.toaddrs, body, self.subject, body, True)
+                self.env.send_email(
+                    self.toaddrs, body, self.subject, body, True)
             except Exception:
                 self.handleError(None)  # no particular record
             self.buffer = []
 
 
 class Environment:
-    def __init__(self, context, env_type = ''):
-        if not env_type:
+    def __init__(self, context, env_type=''):
+        if env_type:
+            ENVIRONMENT = env_type
+        else:
+            ENVIRONMENT = getenv("DJANGO_ENVIRONMENT")
             if ENVIRONMENT:
                 env_type = ENVIRONMENT
             else:
                 env_type = 'prod'
-                
+
+        self.settings = get_settings(env_type)
         self.env_type = env_type
         self.platform = sys.platform
-        self.email_host = EMAIL_HOST
-        self.email_user = EMAIL_USER
-        self.email_bcc = EMAIL_BCC
-        self.email_pwd = EMAIL_PWD
-        self.email_logs = EMAIL_LOGS
-        self.email_replyto = EMAIL_REPLYTO
+
         self.smtp_server = None
         self.connection = None
-        self.is_test = (env_type in ('qa', 'dev'))
+        self.is_test = (env_type != 'prod')
         self.smtp_handler = None
-        self.crowbank_addresses = CROWBANK_ADDRESSES
         self.context = context
         self.key = 0
         self.key_type = ''
-        
+
+    def __getattr__(self, attr):
+        if attr in self.settings:
+            return self.settings[attr]
+
+        uattr = attr.upper()
+        if uattr in self.settings:
+            return self.settings[uattr]
+
+        raise AttributeError
 
     def set_key(self, key, key_type):
         self.key = key
@@ -114,17 +122,17 @@ class Environment:
                 return self.smtp_server
             self.smtp_server.connect(self.email_host)
         else:
-            self.smtp_server = smtplib.SMTP_SSL(self.email_host, 465, timeout=120)
+            self.smtp_server = smtplib.SMTP_SSL(
+                self.email_host, 465, timeout=120)
         self.smtp_server.ehlo()
         self.smtp_server.login(self.email_user, self.email_pwd)
 
         return self.smtp_server
 
     def configure_logger(self, logger):
-        log_file = LOG_FILE
         file_handler = logging.handlers.TimedRotatingFileHandler(
-            log_file, when='W0')
-        
+            self.log_file, when='W0')
+
         debug = (self.env_type in ('qa', 'dev'))
 
         self.smtp_handler = BufferingSMTPHandler(self)
@@ -157,16 +165,16 @@ class Environment:
 
     def get_connection(self):
         if not self.connection:
-            if self.platform == 'win32':
-                self.connection = pymssql.connect(
-                    server=DB_SERVER, user=DB_USER, password=DB_PWD,
-                    database=DB_DATABASE)
-            else:
-                driver = 'SQL SERVER'
-                self.connection = pyodbc.connect(
-f"""DRIVER={driver};SERVER={DB_SERVER};DATABASE={DB_DATABASE};
-UID={DB_USER};PWD={DB_PWD}"""
-                    )
+            # if self.platform == 'win32':
+            self.connection = pymssql.connect(
+                server=self.db_server, user=self.db_user, password=self.db_pwd,
+                database=self.db_database)
+            #             else:
+            #                 driver = 'SQL SERVER'
+            #                 self.connection = pyodbc.connect(
+            # f"""DRIVER={driver};SERVER={self.db_server};DATABASE={self.db_database};
+            # UID={self.db_user};PWD={self.db_pwd}"""
+            #                     )
 
         return self.connection
 
@@ -175,15 +183,32 @@ UID={DB_USER};PWD={DB_PWD}"""
         cur = conn.cursor()
         return cur
 
-    def execute(self, sql, commit = True):
+    def execute(self, sql, commit=None):
+        if commit is None:
+            commit = not self.is_test
         conn = self.get_connection()
         cur = conn.cursor()
         try:
             cur.execute(sql)
             if commit:
+                print("Committed")
                 conn.commit()
         except Exception as e:
             log.error(f'Error executing {sql}: {e}')
+
+    def check_exists(self, sql):
+        sql_wrapper = f"if exists ({sql}) select 1 else select 0"
+        cur = self.get_cursor()
+        cur.execute(sql_wrapper)
+        res = cur.fetchone()[0]
+        return(res == 1)
+
+    def get_server(self):
+        cur = self.get_cursor()
+        sql = 'select @@servername'
+        cur.execute(sql)
+        for row in cur:
+            return row[0]
 
     def send_email(
         self, send_to, send_body, send_subject, alt_body, force_send=False
@@ -214,7 +239,8 @@ UID={DB_USER};PWD={DB_PWD}"""
             self.smtp_server.connect()
             server.sendmail(self.email_user, [send_to], msg.as_string())
 
-    def send_email_old(self, send_to, send_body, send_subject, force_send=False):
+    def send_email_old(
+            self, send_to, send_body, send_subject, force_send=False):
         target = [send_to]
         if ENVIRONMENT != "prod":
             send_subject += f' ({ENVIRONMENT})'

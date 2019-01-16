@@ -1,0 +1,6 @@
+[
+  "tests/test_confirm.py::test_confirmation",
+  "tests/test_petadmin.py::test_server",
+  "tests/test_petadmin.py::test_petadmin",
+  "tests/test_petadmin.py::test_create_customer"
+]
