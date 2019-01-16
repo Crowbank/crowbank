@@ -56,7 +56,7 @@ def confirm_all(
         audit_start=0, additional_text='', forced_subject=''
         ):
     confirmation_candidates = {}
-    conf_time = datetime.datetime.now()
+    conf_time = datetime.now()
 
     env = petadmin.env
     cursor = env.get_cursor()
@@ -286,9 +286,7 @@ class ReportParameters:
     @staticmethod
     def get_deposit_url(bk_no, deposit_amount, pet_names, customer, expiry=0):
         timestamp = time.mktime(
-            datetime.datetime.combine(
-                datetime.date.today(),
-                datetime.datetime.min.time()).timetuple())
+            datetime.combine(date.today(), datetime.min.time()).timetuple())
         timestamp += expiry * 24 * 3600
         timestamp *= 1000
 
