@@ -270,18 +270,18 @@ class ReportParameters:
         self.deposit_icon = None
         self.past_messages = []
 
-    def read_images(self):
-        with open(self.logo_file, "rb") as f:
-            data = f.read()
-            self.logo_code = b64encode(data)
+    # def read_images(self):
+    #     with open(self.logo_file, "rb") as f:
+    #         data = f.read()
+    #         self.logo_code = b64encode(data)
 
-        with open(self.deluxe_logo_file, "rb") as f:
-            data = f.read()
-            self.deluxe_logo_code = b64encode(data)
+    #     with open(self.deluxe_logo_file, "rb") as f:
+    #         data = f.read()
+    #         self.deluxe_logo_code = b64encode(data)
 
-        with open(self.pay_deposit_file, "rb") as f:
-            data = f.read()
-            self.deposit_icon = b64encode(data)
+    #     with open(self.pay_deposit_file, "rb") as f:
+    #         data = f.read()
+    #         self.deposit_icon = b64encode(data)
 
     @staticmethod
     def get_deposit_url(bk_no, deposit_amount, pet_names, customer, expiry=0):
@@ -453,7 +453,7 @@ class ConfirmationCandidate:
 
         if not report_parameters:
             report_parameters = ReportParameters(self.env)
-            report_parameters.read_images()
+#            report_parameters.read_images()
 
         if body_format == 'html':
             mytemplate = Template(filename=report_parameters.report)

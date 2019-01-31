@@ -104,7 +104,8 @@ def main():
     log.info(f'Running {arguments}')
 
     rp = ReportParameters(env)
-    rp.read_images()
+#    rp.read_images()
+# No longer needed, as we do not embed inline images but rather link to website
 
     pa = PetAdmin(env)
 
