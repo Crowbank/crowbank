@@ -12,6 +12,14 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Python: Confirm All",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": ["-all"]
+        },
+        {
             "name": "Python: Attach",
             "type": "python",
             "request": "attach",
