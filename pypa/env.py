@@ -12,7 +12,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
 from datetime import datetime
-from .settings import get_settings
+from pypa.settings import get_settings
 
 assert(sys.platform == 'win32')
 
@@ -191,7 +191,6 @@ class Environment:
         try:
             cur.execute(sql)
             if commit:
-                print("Committed")
                 conn.commit()
         except Exception as e:
             log.error(f'Error executing {sql}: {e}')
