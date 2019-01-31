@@ -14,7 +14,9 @@ def get_settings(env='prod'):
             'crowbank.partners@gmail.com',
             'eyehudai@gmail.com'],
         'FACEBOOK_USER': 'crowbank.partners@gmail.com',
-        'FACEBOOK_PASSWORD': 'Crowbank454'
+        'FACEBOOK_PASSWORD': 'Crowbank454',
+        'TEXTMAGIC_USERNAME': 'eranyehudai',
+        'TEXTMAGIC_TOKEN': 'xhT9jS11ezxRO2OAtcK8ESWr9OMfcE'
     }
 
     if sys.platform == 'win32':
