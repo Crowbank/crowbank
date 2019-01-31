@@ -31,7 +31,7 @@ def main():
     else:
         url = 'http://dev.crowbankkennels.co.uk/wp-content/plugins/crowbank/status.php'
 
-    sql = "select ws_state, ws_lasttransfer from vwwebsite_state where ws_iscurrent = 1";
+    sql = "select ws_state, ws_lasttransfer from vwwebsite_state where ws_iscurrent = 1"
     cursor = env.get_cursor()
 
     cursor.execute(sql)
