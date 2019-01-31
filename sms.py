@@ -1,8 +1,9 @@
 #!/usr/bin/python
 from textmagic.rest import TextmagicRestClient
-from petadmin import PetAdmin, Environment, ENVIRONMENT
+from pypa.petadmin import PetAdmin
+from pypa.env import Environment, ENVIRONMENT
 import re
-import datetime
+from datetime import datetime, date, timedelta
 import argparse
 import logging
 from os import getenv
@@ -15,10 +16,10 @@ env.configure_logger(log)
 
 log.info('Running sms with ENVIRONMENT=%s', ENVIRONMENT)
 
-client = TextmagicRestClient()
+client = TextmagicRestClient(env.TEXTMAGIC_USERNAME, env.TEXTMAGIC_TOKEN)
 
 def pet_name_combine(pets):
-    names = map(lambda p: p.name, pets)
+    names = list(map(lambda p: p.name, pets))
     if len(names) == 1:
         return names[0]
     
@@ -31,7 +32,7 @@ def send_sms(pa, booking, msg, customer, test):
     if msg:
         pass
     else:
-        if booking.start_date.date() == datetime.date.today() + datetime.timedelta(days=1):
+        if booking.start_date.date() == date.today() + timedelta(days=1):
             date_string = 'tomorrow'
         else:
             date_string = 'on ' + booking.start_date.strftime("%A %d/%m/%Y")
@@ -84,7 +85,6 @@ def send_sms(pa, booking, msg, customer, test):
     log.info(log_msg)
 
 def main():
-    log.info('Inside main()')
     parser = argparse.ArgumentParser()
     parser.add_argument('-booking', nargs='*', action='store', type=int, help='Booking number(s)')
     parser.add_argument('-date', action='store', help='The date for which messages are to be sent [YYYYMMDD]')
@@ -97,7 +97,7 @@ def main():
     if args.date:
         start_date = datetime.strptime(args.date, '%Y%m%d') 
     else:
-        start_date = datetime.date.today() + datetime.timedelta(days=1)
+        start_date = date.today() + timedelta(days=1)
     
     test = args.test
     
@@ -133,8 +133,6 @@ def main():
 
     env.close()
 
-
-log.info('Testing __name__ (%s) against __main__', __name__)
 
 if __name__ == '__main__':
     main()
