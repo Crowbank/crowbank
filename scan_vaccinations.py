@@ -1,10 +1,10 @@
 #!/usr/bin/python
-from petadmin import PetAdmin, Environment
+from pypa.petadmin import PetAdmin
+from pypa.env import Environment
 import argparse
 import logging
 import re
 import os
-from settings import *
 
 
 log = logging.getLogger(__name__)
@@ -29,14 +29,14 @@ def main():
     parser.add_argument('-path', action='store', help='Path to directory to be scanned')
     args = parser.parse_args()
 
-    vacc_path = VACC_FOLDER
-    patt = re.compile('^(\d+)\.pdf$')
-    temp_patt = re.compile('^-(\d+)\.pdf$')
+    vacc_path = env.VACC_FOLDER
+    patt = re.compile(r'^(\d+)\.pdf$')
+    temp_patt = re.compile(r'^-(\d+)\.pdf$')
 
     if args.path:
         vacc_path = args.path
 
-    sql = "select pd_pet_no, pd_path from vwpetdocument where pd_desc = 'Vaccination Card'";
+    sql = "select pd_pet_no, pd_path from vwpetdocument where pd_desc = 'Vaccination Card'"
     cursor = env.get_cursor()
 
     cursor.execute(sql)
@@ -61,7 +61,6 @@ def main():
     added = 0
     replaced = 0
     scanned = 0
-    missing = 0
 
     for vacc_file in dirs:
         m = patt.match(vacc_file)
