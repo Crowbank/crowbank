@@ -18,8 +18,8 @@ def get_settings(env='prod'):
     }
 
     if sys.platform == 'win32':
-        settings['IMAGE_FOLDER'] = \
-            'C:/Program Files/Python37/Lib/Site-packages/crowbank/img'
+#            'C:/Program Files/Python37/Lib/Site-packages/crowbank/img'
+        settings['IMAGE_FOLDER'] = 'Z:/Website/crowbank-python/img'
         settings['VACC_FOLDER'] = 'K:/Vaccinations'
         if env == 'prod':
             settings['CONFIRMATIONS_FOLDER'] = 'K:/Confirmations'
