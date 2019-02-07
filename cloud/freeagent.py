@@ -3,7 +3,7 @@ import sys
 import re
 import argparse
 import logging
-from crowbank.petadmin import Environment
+from pypa.env import Environment
 from datetime import datetime
 
 
