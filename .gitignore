@@ -4,4 +4,4 @@ dist/*
 build/*
 *.spec
 .vscode/*
-pypa/settings.py
+**/settings.py
